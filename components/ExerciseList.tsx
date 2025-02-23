@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
 
-export function ExerciseList(props: { title: string }) {
+export function ExerciseList(props: { title: string, exercises: { title: string, grouping: string }[] }) {
   return (
     <View style={styles.container}>
-        <Text style={styles.text0}>{props.title}</Text>
+        <Text style={styles.text1}>{props.title}</Text>
         <FlatList
-            data={[{ key: 'A' }, { key: 'B' }, { key: 'C' }]}
+            data={props.exercises}
             renderItem={({ item }) => (
-            <Button title={item.key} onPress={() => {}} />
+            <Button title={item.title} onPress={() => {}} />
             )}
-            keyExtractor={(item) => item.key}
+            keyExtractor={(item) => item.title} // TODO: use a unique ID instead of the title?
         >
         </FlatList>
     </View>
@@ -21,9 +21,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  text0: {
+  text1: {
     fontSize: 20,
-    fontWeight: 'bold',
+    textDecorationLine: 'underline',
     marginTop: 20,
     marginBottom: 20,
   },

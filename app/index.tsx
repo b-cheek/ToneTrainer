@@ -1,13 +1,15 @@
 import { Text, View, FlatList, Button, StyleSheet } from 'react-native';
 import { ExerciseList } from '@/components/ExerciseList';
+import { Exercises, ExerciseGroupings } from '@/constants/Exercises';
 
 export default function Index() {
   return (
     <View style={styles.container}>
+      <Text style={styles.text0}>Exercises</Text>
       <View style={styles.exerciseContainer}>
-        <ExerciseList title="Beginner" />
-        <ExerciseList title="Intermediate" />
-        <ExerciseList title="Adcanced" />
+        <ExerciseList title="Beginner" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Beginner)} />
+        <ExerciseList title="Intermediate" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Intermediate)} />
+        <ExerciseList title="Advanced" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Advanced)} />
       </View>
     </View>
   );
