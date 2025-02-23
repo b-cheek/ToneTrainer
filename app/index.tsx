@@ -1,41 +1,35 @@
-import { WebView } from 'react-native-webview';
-import Constants from 'expo-constants';
-import { StyleSheet } from 'react-native';
+import { Text, View, FlatList, Button, StyleSheet } from 'react-native';
+import { ExerciseList } from '@/components/ExerciseList';
+import { Exercises, ExerciseGroupings } from '@/constants/Exercises';
 
-export default function App() {
+export default function Index() {
   return (
-    <WebView
-      style={styles.container}
-      // source={{ uri: 'https://nbrosowsky.github.io/tonejs-instruments/demo.html' }}
-      originWhitelist={['*']}
-      source={{ html:
-`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tone.js Example</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
-</head>
-<body>
-  <button onclick="playSound()">Play Sound</button>
-  <script>
-    function playSound() {
-      const synth = new Tone.Synth().toDestination();
-      synth.detune.value = 200;
-      synth.triggerAttackRelease("C4", "8n");
-    }
-  </script>
-</body>
-</html>`
-      }}
-    />
+    <View style={styles.container}>
+      <Text style={styles.text0}>Exercises</Text>
+      <View style={styles.exerciseContainer}>
+        <ExerciseList title="Beginner" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Beginner)} />
+        <ExerciseList title="Intermediate" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Intermediate)} />
+        <ExerciseList title="Advanced" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Advanced)} />
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    marginTop: Constants.statusBarHeight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text0: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  exerciseContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 15
   },
 });
