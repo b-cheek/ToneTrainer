@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View, FlatList, Button } from 'react-native';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { Link } from 'expo-router';
 
 export function ExerciseList(props: { title: string, exercises: { title: string, grouping: string }[] }) {
   return (
@@ -7,7 +8,10 @@ export function ExerciseList(props: { title: string, exercises: { title: string,
         <FlatList
             data={props.exercises}
             renderItem={({ item }) => (
-            <Button title={item.title} onPress={() => {}} />
+            <Link href={{
+              pathname: '/exercises/[id]',
+              params: { id: item.title }
+            }}>{item.title}</Link>
             )}
             keyExtractor={(item) => item.title} // TODO: use a unique ID instead of the title?
         >
