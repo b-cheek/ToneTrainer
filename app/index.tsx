@@ -1,18 +1,13 @@
 import { Text, View, FlatList, Button, StyleSheet } from 'react-native';
+import { ExerciseList } from '@/components/ExerciseList';
 
 export default function Index() {
   return (
     <View style={styles.container}>
-      <View style={styles.container}>
-        <Text style={styles.text0}>Exercises</Text>
-      </View>
       <View style={styles.exerciseContainer}>
-        <FlatList
-          data={[{key: 'A'}, {key: 'B'}, {key: 'C'}]}
-          renderItem={({item}) => <Button title={item.key} onPress={() => {}} />}
-          keyExtractor={item => item.key}
-        >
-        </FlatList>
+        <ExerciseList title="Beginner" />
+        <ExerciseList title="Intermediate" />
+        <ExerciseList title="Adcanced" />
       </View>
     </View>
   );
@@ -33,5 +28,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 15
   },
 });
