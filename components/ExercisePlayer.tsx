@@ -18,30 +18,21 @@ export function ExercisePlayer() {
                 webview.current?.injectJavaScript(playSoundInjection);
             }} />
             <WebView
-                style={styles.webContainer}
-                // source={{ uri: 'https://nbrosowsky.github.io/tonejs-instruments/demo.html' }}
+                style={{ maxWidth: 0, maxHeight: 0 }}
+                containerStyle={{ flex: 0 }}
                 originWhitelist={['*']}
                 ref={webview}
                 source={{ html:
-`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tone.js Example</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
-</head>
-<body>
-  <button onclick="playSound()">Play Sound</button>
-  <script>
-    function playSound() {
-      const synth = new Tone.Synth().toDestination();
-      synth.detune.value = 200;
-      synth.triggerAttackRelease("C4", "8n");
-    }
-  </script>
-</body>
-</html>`
+`
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
+<script>
+function playSound() {
+    const synth = new Tone.Synth().toDestination();
+    synth.detune.value = 200;
+    synth.triggerAttackRelease("C4", "8n");
+}
+</script>
+`
       }}
     />
         </View>
@@ -69,7 +60,4 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'black',
     },
-    webContainer: {
-        maxWidth: 100,
-    }
 });
