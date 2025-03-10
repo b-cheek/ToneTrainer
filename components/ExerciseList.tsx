@@ -1,7 +1,8 @@
+import React from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { Link } from 'expo-router';
 
-export function ExerciseList(props: { title: string, exercises: { title: string, grouping: string }[] }) {
+const ExerciseList = (props: { title: string, exercises: { title: string }[] }) => {
   return (
     <View style={styles.container}>
         <Text style={styles.text1}>{props.title}</Text>
@@ -32,3 +33,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 });
+
+export default ExerciseList;
