@@ -9,6 +9,11 @@ export const Exercises = [
     {
         title: "A",
         grouping: ExerciseGroupings.Beginner,
+        soundScript: `
+        const synth = new Tone.Synth().toDestination();
+        const now = Tone.now();
+        synth.triggerAttackRelease("C4", "8n");
+        `
     },
     {
         title: "B",
