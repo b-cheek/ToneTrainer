@@ -13,7 +13,7 @@ const ExercisePlayer = (props: {soundScript: string}) => {
     `;
 
     return (
-        <View style={styles.exerciseContainer}>
+        <View style={styles.playerContainer}>
             <Text>ExercisePlayer</Text>
             <Button title="Play" onPress={() => {
                 webview.current?.injectJavaScript(playSoundInjection);
@@ -28,17 +28,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    text0: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 20,
-    },
-    exerciseContainer: {
+    playerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 15,
+        marginBottom: 20,
         backgroundColor: 'lightgray',
         padding: 10,
         borderWidth: 1,
