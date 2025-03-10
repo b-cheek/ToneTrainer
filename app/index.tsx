@@ -1,3 +1,4 @@
+import React from 'react';
 import { Text, View, FlatList, Button, StyleSheet } from 'react-native';
 import ExerciseList from '@/components/ExerciseList';
 import { Exercises, ExerciseGroupings } from '@/constants/Exercises';
