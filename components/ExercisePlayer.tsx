@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import { StyleSheet, View, Text, Button } from 'react-native';
 import { WebView } from 'react-native-webview';
+import AudioPlayer from './AudioPlayer';
 
-export function ExercisePlayer() {
+const ExercisePlayer = () => {
 
     //TODO: Note use of tonejs offline to save sound to a buffer passed to this player instead of directly playing it?
 
@@ -17,24 +18,7 @@ export function ExercisePlayer() {
             <Button title="Play" onPress={() => {
                 webview.current?.injectJavaScript(playSoundInjection);
             }} />
-            <WebView
-                style={{ maxWidth: 0, maxHeight: 0 }}
-                containerStyle={{ flex: 0 }}
-                originWhitelist={['*']}
-                ref={webview}
-                source={{ html:
-`
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
-<script>
-function playSound() {
-    const synth = new Tone.Synth().toDestination();
-    synth.detune.value = 200;
-    synth.triggerAttackRelease("C4", "8n");
-}
-</script>
-`
-      }}
-    />
+            <AudioPlayer ref={webview} />
         </View>
     )
 }
@@ -61,3 +45,5 @@ const styles = StyleSheet.create({
         borderColor: 'black',
     },
 });
+
+export default ExercisePlayer;

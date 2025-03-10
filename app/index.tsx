@@ -1,5 +1,5 @@
 import { Text, View, FlatList, Button, StyleSheet } from 'react-native';
-import { ExerciseList } from '@/components/ExerciseList';
+import ExerciseList from '@/components/ExerciseList';
 import { Exercises, ExerciseGroupings } from '@/constants/Exercises';
 
 export default function Index() {

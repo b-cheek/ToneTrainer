@@ -1,8 +1,8 @@
 import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { ExercisePlayer } from '@/components/ExercisePlayer';
+import ExercisePlayer from '@/components/ExercisePlayer';
 
-export default function Exercise() {
+const Exercise = () => {
     
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
@@ -27,3 +27,5 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
 });
+
+export default Exercise;
