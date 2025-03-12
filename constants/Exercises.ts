@@ -5,15 +5,30 @@ export enum ExerciseGroupings {
     Advanced = "Advanced"
 }
 
-function randomMidi() {
-    return Math.floor(Math.random() * 128);
-}
-
 export const Exercises = [
     {
         title: "Interval Tuning",
         grouping: ExerciseGroupings.Beginner,
         soundScript: `
+        const sampler = new Tone.Sampler({
+            urls: {
+                A4: "A4.mp3",
+                C3: "C3.mp3",
+                C4: "C4.mp3",
+                C5: "C5.mp3",
+                E4: "E4.mp3",
+                G2: "G2.mp3",
+                G3: "G3.mp3",
+                G4: "G4.mp3",
+                A2: "A2.mp3",
+                A3: "A3.mp3"
+            },
+            baseUrl: "https://github.com/nbrosowsky/tonejs-instruments/blob/master/samples/bassoon/",
+            onload: () => {
+                sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+            }
+        }).toDestination();
+        /*
         const synth0 = new Tone.Synth().toDestination();
         const synth1 = new Tone.Synth().toDestination();
         note0 = getRndInt(48, 79);
@@ -21,6 +36,7 @@ export const Exercises = [
         synth0.triggerAttackRelease(Tone.Frequency(note0, "midi"), "2n");
         synth1.detune.value = 20;
         synth1.triggerAttackRelease(Tone.Frequency(note1, "midi"), "2n");
+        */
         `,
         answerChoices: [
             'In Tune',

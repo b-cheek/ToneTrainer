@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
+    <script>
+
+    function playSound() {
+        const sampler = new Tone.Sampler({
+            urls: {
+                A4: "A4.mp3",
+                C3: "C3.mp3",
+                C4: "C4.mp3",
+                C5: "C5.mp3",
+                E4: "E4.mp3",
+                G2: "G2.mp3",
+                G3: "G3.mp3",
+                G4: "G4.mp3",
+                A2: "A2.mp3",
+                A3: "A3.mp3"
+            },
+            baseUrl: "https://github.com/nbrosowsky/tonejs-instruments/blob/master/samples/bassoon/",
+            onload: () => {
+                sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+            }
+        }).toDestination();
+    }
+    </script>
+    <button onclick="playSound()">Play</button>
+</body>
+</html>
