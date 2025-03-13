@@ -25,7 +25,10 @@ export const Exercises = [
         answerChoices: [
             'In Tune',
             'Out of Tune',
-        ]
+        ],
+        getCorrectAnswer: (inTune: Boolean) => {
+            return inTune ? 'In Tune' : 'Out of Tune';
+        }
     },
     {
         title: "B",
