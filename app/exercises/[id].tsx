@@ -9,13 +9,13 @@ const Exercise = () => {
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises.find(ex => ex.title == id);
-    const soundScript = exercise?.soundScript ?? 'alert("No sound script found for this exercise")';
+    const soundScript = exercise?.soundScript ?? (() => 'No sound script found for this exercise');
     const answerChoices = exercise?.answerChoices ?? [];
 
     return (
         <View style={styles.container}>
             <Text style={styles.text0}>{id}</Text>
-            <ExercisePlayer soundScript={soundScript} />
+            <ExercisePlayer soundScript={soundScript(true)} />
             <View style={styles.answersContainer}>
                 {answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => alert(`You selected ${choice}`)} />
