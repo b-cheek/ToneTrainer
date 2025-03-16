@@ -13,25 +13,29 @@ const Exercise = () => {
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises.find(ex => ex.title == id);
-    const soundScript = exercise?.soundScript ?? (() => 'No sound script found for this exercise');
-    const answerChoices = exercise?.answerChoices ?? [];
-    const getCorrectAnswer = exercise?.getCorrectAnswer ?? (() => 'No correct answer found for this exercise');
+    if (!exercise) {
+        return <Text>Exercise not found</Text>;
+    }
+
+    // const [notes, setNotes] = useState(exercise.generateNotes(true));
+    const notes = exercise.generateNotes(true);
 
     const handleAnswer = (answer: string) => {
         setExerciseAnswer(answer);
         setExerciseNum(exerciseNum + 1);
-        if (answer === getCorrectAnswer(true)) {
+        if (answer === exercise.getCorrectAnswer(true)) {
             setCorrectNum(correctNum + 1);
         }
+        // setNotes(exercise.generateNotes(true)); // Generate new notes for the next exercise
     }
 
     return (
         <View style={styles.container}>
             <Text style={styles.text0}>{id}</Text>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={soundScript(true)} />
+            <ExercisePlayer soundScript={exercise.soundScript(notes) } />
             <View style={styles.answersContainer}>
-                {answerChoices.map((choice, index) => (
+                {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />
                 ))}
             </View>

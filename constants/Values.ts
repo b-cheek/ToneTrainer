@@ -1,14 +1,17 @@
-export const justIntonationAdjustments = {
-    0: 0,
-    1: 11.7,
-    2: 3.91,
-    3: 15.6,
-    4: -13.7,
-    5: -1.95,
-    6: -9.78,
-    7: 1.95,
-    8: -9.78
-} // Note mirrored after TT inverting intervals
+export const justIntonationAdjustments = [
+    0,
+    11.7,
+    3.91,
+    15.6,
+    -13.7,
+    -1.95,
+    -9.78,
+    1.95,
+    13.7,
+    -15.6,
+    -3.91,
+    -11.7,
+] // Note mirrored after TT inverting intervals
 
 export const outOfTuneDifficulty = { // Walues are minimum cent difference played when answer is out of tune
     easy: 20,
@@ -23,7 +26,7 @@ export const IntervalSizeDifficulty = {
 }
 
 export const IntervalRangeDifficulty = { // Values represent distance from middle C
-    easy: 0,
+    easy: 0, // Means one note in interval will always be middle C
     intermediate: 22,
     advanced: 44
 } // Note that 44 is used to be roughly the complete range of a piano
