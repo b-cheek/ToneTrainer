@@ -19,25 +19,17 @@ const Exercise = () => {
     }
 
     const [inTune, setInTune] = useState(Math.random() < 0.5); // Randomly set inTune to true or false
-    const [notes, setNotes] = useState<Note[]>([]);
-    const [centsOutOfTune, setCentsOutOfTune] = useState(0);
-    const [prevNotes, setPrevNotes] = useState<Note[]>([]);
-    const [prevTuning, setPrevTuning] = useState(0);
-
-    // Generate initial notes on component mount
-    useEffect(() => {
-        const initialNotes = exercise.generateNotes(inTune);
-        setNotes(initialNotes.notes);
-        setCentsOutOfTune(initialNotes.centsOutOfTune);
-    }, []);
+    const [audioDetails, setAudioDetails] = useState(exercise.generateNotes(inTune));
+    const [prevAudioDetails, setPrevAudioDetails] = useState(audioDetails);
 
     const prevExerciseString = () => {
-        const base = `Previous Exercise: ${intervalDistances[(prevNotes[1].midi-prevNotes[0].midi+12)%12]}, ` // Note adjustment for modulo instead of js remainder operator
-        if (prevTuning == 0) {
+        const { notes, centsOutOfTune } = prevAudioDetails;
+        const base = `Previous Exercise: ${intervalDistances[Math.abs(notes[1].midi-notes[0].midi)%12]}, ` // Note adjustment for modulo instead of js remainder operator
+        if (centsOutOfTune == 0) {
             return base + "In Tune";
         }
-        const tuning = (prevTuning < 0) ? "Too Narrow" : "Too Wide"; // Note that this makes perfect unison alwayes too wide
-        return base + tuning + ` (${Math.abs(prevTuning)} cents)`;
+        const tuning = (centsOutOfTune < 0) ? "Too Narrow" : "Too Wide"; // Note that this makes perfect unison alwayes too wide
+        return base + tuning + ` (${Math.abs(centsOutOfTune)} cents)`;
     }
 
     const handleAnswer = (answer: string) => {
@@ -46,19 +38,17 @@ const Exercise = () => {
             setCorrectNum(correctNum + 1);
         }
         // Set up next exercise
-        setPrevNotes(notes);
-        setPrevTuning(centsOutOfTune);
+        setPrevAudioDetails(audioDetails);
         setInTune(Math.random() < 0.5); 
-        const newNotes = exercise.generateNotes(inTune);
-        setNotes(newNotes.notes);
-        setCentsOutOfTune(newNotes.centsOutOfTune);
+        setAudioDetails(exercise.generateNotes(inTune));
     }
 
     return (
         <View style={styles.container}>
             <Text style={styles.text0}>{id}</Text>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={exercise.soundScript(notes) } />
+            <ExercisePlayer soundScript={exercise.soundScript(audioDetails.notes) } />
+            <Text>Sound Script (debug): {exercise.soundScript(audioDetails.notes)}</Text>
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />

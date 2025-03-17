@@ -35,9 +35,9 @@ export const outOfTuneDifficulty = { // Walues are minimum cent difference playe
 } // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
 
 export const IntervalSizeDifficulty = {
-    easy: 12,
-    intermediate: 24,
-    advanced: 36
+    easy: 11, // Intervals < 1 octave
+    intermediate: 23,
+    advanced: 35
 }
 
 export const IntervalRangeDifficulty = { // Values represent distance from middle C

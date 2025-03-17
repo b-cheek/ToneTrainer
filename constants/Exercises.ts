@@ -38,8 +38,12 @@ export const Exercises: Exercise[] = [
             let note1 = note0 + getRndInt(-IntervalSizeDifficulty.easy, IntervalSizeDifficulty.easy);
             let note1Detune = 0;
             note1Detune += justIntonationAdjustments[(note1 - note0 + 12)%12]; // Weird because js usses remainder not modul0 :(
-            const centsOutOfTune = (inTune) ? 0 : getRndInt(outOfTuneDifficulty.easy, 49) * getRndSign();
-            // Note only up to 49 cents out of tune to avoid intervallic ambiguity (ignoring existing just intonation adjustments)
+            // Also note that this automatically accesses the INVERTED adjustment when note1 is lower than note0
+            const centsOutOfTune = (inTune) ? 0 : getRndInt(outOfTuneDifficulty.easy, 49-Math.max(...justIntonationAdjustments)) * getRndSign();
+            // Note that this imposes a theoretical upper limit on the value of outOfTuneDifficulty.easy
+            // Note only up to 49 cents out of tune to avoid intervallic ambiguity (accounting for just intonation adjustments) 
+            // (There is a more beautiful/correct solution that accounts for specific adjacent intervals and when exactly one interval becomes another in relation to another 
+            // but I deemed it beyond the scope of this project)
             // TODO: explain this in app and other just intonation related stuff
             note1Detune += centsOutOfTune;
             // debugging
