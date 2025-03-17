@@ -14,7 +14,7 @@ const getRndSign = () => {
     return Math.random() < 0.5 ? -1 : 1;
 }
 
-type Note = {
+export type Note = {
     midi: number,
     detune?: number,
 }
@@ -22,7 +22,7 @@ type Note = {
 type Exercise = {
     title: string,
     grouping: ExerciseGroupings,
-    generateNotes: (inTune: Boolean) => Note[],
+    generateNotes: (inTune: Boolean) => { notes: Note[], centsOutOfTune: number },
     soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
@@ -38,15 +38,20 @@ export const Exercises: Exercise[] = [
             let note1 = note0 + getRndInt(-IntervalSizeDifficulty.easy, IntervalSizeDifficulty.easy);
             let note1Detune = 0;
             note1Detune += justIntonationAdjustments[(note1 - note0 + 12)%12]; // Weird because js usses remainder not modul0 :(
-            if (!inTune) {
-                note1Detune += getRndInt(outOfTuneDifficulty.easy, 50) * getRndSign();
-            }
+            const centsOutOfTune = (inTune) ? 0 : getRndInt(outOfTuneDifficulty.easy, 49) * getRndSign();
+            // Note only up to 49 cents out of tune to avoid intervallic ambiguity (ignoring existing just intonation adjustments)
+            // TODO: explain this in app and other just intonation related stuff
+            note1Detune += centsOutOfTune;
             // debugging
             // alert(`note0: ${note0}, note1: ${note1}, note1Detune: ${note1Detune}, interval: ${intervalDistances[(note1 - note0 + 12)%12]}`);
-            return [
-                { midi: note0 },
-                { midi: note1, detune: note1Detune }
-            ]
+            return {
+                notes: [
+                    { midi: note0 },
+                    { midi: note1, detune: note1Detune }
+                ],
+                centsOutOfTune: centsOutOfTune * Math.sign(note1-note0)
+                // centsOutOfTune is positive if interval is too wide, negative if too narrow
+            }
         },
         soundScript: (notes: Note[]) => `
             const synths = [];
