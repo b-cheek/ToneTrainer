@@ -1,4 +1,4 @@
-import { justIntonationAdjustments, intervalDistances, outOfTuneDifficulty, IntervalSizeDifficulty, IntervalRangeDifficulty } from "./Values"
+import { justIntonationAdjustments, outOfTuneDifficulty, IntervalSizeDifficulty, IntervalRangeDifficulty } from "./Values"
 
 export enum ExerciseGroupings {
     Beginner = "Beginner",
@@ -34,9 +34,7 @@ export const Exercises: Exercise[] = [
         grouping: ExerciseGroupings.Beginner,
         generateNotes: (inTune: Boolean) => {
             // 60 is middle C
-            // let note0 = 60; // debugging
             let note0 = getRndInt(60 - IntervalRangeDifficulty.easy, 60 + IntervalRangeDifficulty.easy);
-            // note1 = 60; // debugging
             let note1 = note0 + getRndInt(-IntervalSizeDifficulty.easy, IntervalSizeDifficulty.easy);
             let note1Detune = 0;
             note1Detune += justIntonationAdjustments[(note1 - note0 + 12)%12]; // Weird because js usses remainder not modul0 :(

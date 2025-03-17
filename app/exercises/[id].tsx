@@ -17,7 +17,6 @@ const Exercise = () => {
         return <Text>Exercise not found</Text>;
     }
 
-    // const [notes, setNotes] = useState(exercise.generateNotes(true));
     const inTune = Math.random() < 0.5;
     const notes = exercise.generateNotes(inTune);
 
@@ -28,7 +27,6 @@ const Exercise = () => {
             setCorrectNum(correctNum + 1);
         }
         // alert(exercise.soundScript(notes)); // Debugging
-        // setNotes(exercise.generateNotes(true)); // Generate new notes for the next exercise
     }
 
     return (
