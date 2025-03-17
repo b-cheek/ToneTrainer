@@ -18,14 +18,16 @@ const Exercise = () => {
     }
 
     // const [notes, setNotes] = useState(exercise.generateNotes(true));
-    const notes = exercise.generateNotes(true);
+    const inTune = Math.random() < 0.5;
+    const notes = exercise.generateNotes(inTune);
 
     const handleAnswer = (answer: string) => {
         setExerciseAnswer(answer);
         setExerciseNum(exerciseNum + 1);
-        if (answer === exercise.getCorrectAnswer(true)) {
+        if (answer === exercise.getCorrectAnswer(inTune)) {
             setCorrectNum(correctNum + 1);
         }
+        // alert(exercise.soundScript(notes)); // Debugging
         // setNotes(exercise.generateNotes(true)); // Generate new notes for the next exercise
     }
 

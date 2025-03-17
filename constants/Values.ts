@@ -13,9 +13,24 @@ export const justIntonationAdjustments = [
     -11.7,
 ] // Note mirrored after TT inverting intervals
 
+export const intervalDistances = [ // Currently for debugging maybe more later
+    "P1",
+    "m2",
+    "M2",
+    "m3",
+    "M3",
+    "P4",
+    "TT",
+    "P5",
+    "m6",
+    "M6",
+    "m7",
+    "M7",
+]
+
 export const outOfTuneDifficulty = { // Walues are minimum cent difference played when answer is out of tune
-    easy: 20,
-    intermediate: 10,
+    easy: 30,
+    intermediate: 15,
     advanced: 1
 } // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
 
