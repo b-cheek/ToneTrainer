@@ -28,19 +28,27 @@ export const intervalDistances = [ // Currently for debugging maybe more later
     "M7",
 ]
 
-export const outOfTuneDifficulty = { // Walues are minimum cent difference played when answer is out of tune
+export type DifficultyLevel = 'easy' | 'intermediate' | 'advanced';
+
+export const difficultyLevelString: { [key: string]: DifficultyLevel } = {
+    easy: "easy",
+    intermediate: "intermediate",
+    advanced: "advanced"
+}
+
+export const outOfTuneDifficulty: Record<DifficultyLevel, number> = { // Values are minimum cent difference played when answer is out of tune
     easy: 30,
     intermediate: 15,
     advanced: 1
 } // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
 
-export const IntervalSizeDifficulty = {
+export const IntervalSizeDifficulty: Record<DifficultyLevel, number> = {
     easy: 11, // Intervals < 1 octave
     intermediate: 23,
     advanced: 35
 }
 
-export const IntervalRangeDifficulty = { // Values represent distance from middle C
+export const IntervalRangeDifficulty: Record<DifficultyLevel, number> = { // Values represent distance from middle C
     easy: 0, // Means one note in interval will always be middle C
     intermediate: 22,
     advanced: 44

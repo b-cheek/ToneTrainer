@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import { Exercises } from '@/constants/Exercises';
-import { Note } from '@/constants/Exercises';
-import { intervalDistances } from '@/constants/Values';
+import { intervalDistances, difficultyLevelString, DifficultyLevel } from '@/constants/Values';
 
 const Exercise = () => {
     
@@ -18,8 +17,16 @@ const Exercise = () => {
         return <Text>Exercise not found</Text>;
     }
 
+    const intervalDifficulties: { [key: string]: DifficultyLevel } = {
+        // Why does IDE not understand that the properties of this can only be DifficultyLevel? that was the whole point :(
+        // Also there surely is a less convoluted way to do this that ensures type safety and will actually error any typos
+        rangeDifficulty: difficultyLevelString.easy,
+        sizeDifficulty: difficultyLevelString.easy,
+        outOfTuneDifficulty: difficultyLevelString.intermediate,
+    }
+
     const [inTune, setInTune] = useState(Math.random() < 0.5); // Randomly set inTune to true or false
-    const [audioDetails, setAudioDetails] = useState(exercise.generateNotes(inTune));
+    const [audioDetails, setAudioDetails] = useState(exercise.generateNotes(inTune, intervalDifficulties));
     const [prevAudioDetails, setPrevAudioDetails] = useState(audioDetails);
 
     const prevExerciseString = () => {
@@ -40,7 +47,7 @@ const Exercise = () => {
         // Set up next exercise
         setPrevAudioDetails(audioDetails);
         setInTune(Math.random() < 0.5); 
-        setAudioDetails(exercise.generateNotes(inTune));
+        setAudioDetails(exercise.generateNotes(inTune, intervalDifficulties));
     }
 
     return (
