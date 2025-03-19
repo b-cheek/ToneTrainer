@@ -14,6 +14,11 @@ const getRndSign = () => {
     return Math.random() < 0.5 ? -1 : 1;
 }
 
+// because js uses remainder not modulo :(
+const modulo = (a: number, b: number) => {
+    return ((a % b) + b) % b;
+}
+
 export type Note = {
     midi: number,
     detune?: number,
@@ -44,8 +49,8 @@ export const Exercises: Exercise[] = [
             let note0 = getRndInt(60 - rangeDifficulty, 60 + rangeDifficulty);
             let note1 = note0 + getRndInt(-sizeDifficulty, sizeDifficulty);
             let note1Detune = 0;
-            note1Detune += justIntonationAdjustments[(note1 - note0 + 12) % 12]; // Weird because js uses remainder not modulo :(
-            // Also note that this automatically accesses the INVERTED adjustment when note1 is lower than note0
+            note1Detune += justIntonationAdjustments[modulo(note1-note0, 12)]; 
+            // note that the modulo fn automatically accesses the INVERTED adjustment when note1 is lower than note0
             const centsOutOfTune = (inTune) 
                 ? 0 
                 // TODO: fix error with NaN detune, I suspect caused by impossible rand range
