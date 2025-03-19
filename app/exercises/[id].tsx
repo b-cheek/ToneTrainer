@@ -17,12 +17,10 @@ const Exercise = () => {
         return <Text>Exercise not found</Text>;
     }
 
-    const intervalDifficulties: { [key: string]: DifficultyLevel } = {
-        // Why does IDE not understand that the properties of this can only be DifficultyLevel? that was the whole point :(
-        // Also there surely is a less convoluted way to do this that ensures type safety and will actually error any typos
-        rangeDifficulty: difficultyLevelString.easy,
-        sizeDifficulty: difficultyLevelString.easy,
-        outOfTuneDifficulty: difficultyLevelString.intermediate,
+    const intervalDifficulties: Record<string, DifficultyLevel> = {
+        range: difficultyLevelString.advanced,
+        size: difficultyLevelString.advanced,
+        outOfTune: difficultyLevelString.advanced,
     }
 
     const [inTune, setInTune] = useState(Math.random() < 0.5); // Randomly set inTune to true or false
