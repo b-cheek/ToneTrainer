@@ -19,7 +19,7 @@ const Exercise = () => {
 
     const intervalDifficulties: Record<string, DifficultyLevel> = {
         range: difficultyLevelString.easy,
-        size: difficultyLevelString.easy,
+        size: difficultyLevelString.advanced,
         outOfTune: difficultyLevelString.easy,
     }
 

@@ -93,7 +93,8 @@ export const Exercises: Exercise[] = [
         },
         generateFeedback: (centsOutOfTune: number, ...notes: number[]) => {
             const [note0, note1] = notes;
-            return `Previous Exercise: ${intervalDistances[modulo(note1-note0, 12)]}, ` + 
+            // Note different calculation than tuningAdjustments
+            return `Previous Exercise: ${intervalDistances[Math.abs(note1-note0)]}, ` + 
                 ((centsOutOfTune == 0) ? "In Tune" : 
                 ((centsOutOfTune < 0) ? "Too Narrow" : "Too Wide") + ` (${Math.abs(centsOutOfTune)} cents)`);
         },
