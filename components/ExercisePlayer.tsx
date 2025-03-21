@@ -6,7 +6,6 @@ import AudioPlayer from './AudioPlayer';
 const ExercisePlayer = (props: {soundScript: string}) => {
 
     //TODO: Note use of tonejs offline to save sound to a buffer passed to this player instead of directly playing it?
-
     const webview = useRef<WebView>(null);
     const playSoundInjection = `
     playSound();
