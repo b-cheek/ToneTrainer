@@ -1,4 +1,4 @@
-import { justIntonationAdjustments, DifficultyLevel } from "./Values"
+import { justIntonationAdjustments, DifficultyLevel, intervalDistances } from "./Values"
 
 export enum ExerciseGroupings {
     Beginner = "Beginner",
@@ -27,10 +27,11 @@ export type Note = {
 type Exercise = {
     title: string,
     grouping: ExerciseGroupings,
-    generateNotes: (inTune: Boolean, difficulties: {[key: string]: DifficultyLevel }) => { notes: Note[], centsOutOfTune: number },
+    generateNotes: (inTune: Boolean, difficulties: {[key: string]: DifficultyLevel }) => { notes: Note[], feedback: string },
     soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
+    generateFeedback: (centsOutOfTune: number, ...notes: number[]) => string,
     difficultyLevels: Record<string, Record<DifficultyLevel, number>>
 }
 
@@ -53,7 +54,6 @@ export const Exercises: Exercise[] = [
             // note that the modulo fn automatically accesses the INVERTED adjustment when note1 is lower than note0
             const centsOutOfTune = (inTune) 
                 ? 0 
-                // TODO: fix error with NaN detune, I suspect caused by impossible rand range
                 : getRndInt(outOfTuneDifficulty, 49 - Math.max(...justIntonationAdjustments)) * getRndSign();
             // Note that this imposes a theoretical upper limit on the value of outOfTuneDifficulty.easy
             // Note only up to 49 cents out of tune to avoid intervallic ambiguity (accounting for just intonation adjustments) 
@@ -68,7 +68,8 @@ export const Exercises: Exercise[] = [
                     { midi: note0 },
                     { midi: note1, detune: note1Detune }
                 ],
-                centsOutOfTune: centsOutOfTune * Math.sign(note1 - note0)
+                // feedback: this.generateFeedback(inTune, centsOutOfTune * Math.sign(note1 - note0))
+                feedback: this.generateFeedback(centsOutOfTune, note0, note1)
                 // centsOutOfTune is positive if interval is too wide, negative if too narrow
                 // TODO: Refactor to simply return the computed feedback string instead of just the cents out of tune
                 // Which will need adustment to account for intervals greater than an octave
@@ -89,6 +90,12 @@ export const Exercises: Exercise[] = [
         ],
         getCorrectAnswer: (inTune: Boolean) => {
             return inTune ? 'In Tune' : 'Out of Tune';
+        },
+        generateFeedback: (centsOutOfTune: number, ...notes: number[]) => {
+            const [note0, note1] = notes;
+            return `Previous Exercise: ${intervalDistances[modulo(note1-note0, 12)]}, ` + 
+                ((centsOutOfTune == 0) ? "In Tune" : 
+                ((centsOutOfTune < 0) ? "Too Narrow" : "Too Wide") + ` (${Math.abs(centsOutOfTune)} cents)`);
         },
         difficultyLevels: {
             OutOfTune: {

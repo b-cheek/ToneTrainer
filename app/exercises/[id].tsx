@@ -3,7 +3,7 @@ import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import { Exercises } from '@/constants/Exercises';
-import { intervalDistances, difficultyLevelString, DifficultyLevel } from '@/constants/Values';
+import { difficultyLevelString, DifficultyLevel } from '@/constants/Values';
 
 const Exercise = () => {
     
@@ -18,32 +18,24 @@ const Exercise = () => {
     }
 
     const intervalDifficulties: Record<string, DifficultyLevel> = {
-        range: difficultyLevelString.advanced,
-        size: difficultyLevelString.advanced,
-        outOfTune: difficultyLevelString.advanced,
+        range: difficultyLevelString.easy,
+        size: difficultyLevelString.easy,
+        outOfTune: difficultyLevelString.easy,
     }
 
     const [inTune, setInTune] = useState(Math.random() < 0.5); // Randomly set inTune to true or false
     const [audioDetails, setAudioDetails] = useState(exercise.generateNotes(inTune, intervalDifficulties));
-    const [prevAudioDetails, setPrevAudioDetails] = useState(audioDetails);
-
-    const prevExerciseString = () => {
-        const { notes, centsOutOfTune } = prevAudioDetails;
-        const base = `Previous Exercise: ${intervalDistances[Math.abs(notes[1].midi-notes[0].midi)%12]}, ` // Note adjustment for modulo instead of js remainder operator
-        if (centsOutOfTune == 0) {
-            return base + "In Tune";
-        }
-        const tuning = (centsOutOfTune < 0) ? "Too Narrow" : "Too Wide"; // Note that this makes perfect unison alwayes too wide
-        return base + tuning + ` (${Math.abs(centsOutOfTune)} cents)`;
-    }
+    const [prevExerciseString, setPrevExerciseString] = useState("");
 
     const handleAnswer = (answer: string) => {
+        // Debugging
+        alert(`inTune: ${inTune}, Correct Answer: ${exercise.getCorrectAnswer(inTune)}, Your Answer: ${answer}`);
         setExerciseNum(exerciseNum + 1);
         if (answer === exercise.getCorrectAnswer(inTune)) {
             setCorrectNum(correctNum + 1);
         }
         // Set up next exercise
-        setPrevAudioDetails(audioDetails);
+        setPrevExerciseString(audioDetails.feedback);
         setInTune(Math.random() < 0.5); 
         setAudioDetails(exercise.generateNotes(inTune, intervalDifficulties));
     }
@@ -53,14 +45,16 @@ const Exercise = () => {
             <Text style={styles.text0}>{id}</Text>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
             <ExercisePlayer soundScript={exercise.soundScript(audioDetails.notes) } />
-            <Text>Sound Script (debug): {exercise.soundScript(audioDetails.notes)}</Text>
+            <Text>Debug</Text>
+            <Text>Intune: {inTune ? "in tune" : "out of tune"}</Text>
+            <Text>Sound Script: {exercise.soundScript(audioDetails.notes)}</Text>
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />
                 ))}
             </View>
             <View>
-                {exerciseNum > 0 && <Text>{prevExerciseString()}</Text>}
+                {exerciseNum > 0 && <Text>{prevExerciseString}</Text>}
             </View>
         </View>
     );
