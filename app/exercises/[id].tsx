@@ -23,38 +23,46 @@ const Exercise = () => {
         outOfTune: difficultyLevelString.easy,
     }
 
-    const [inTune, setInTune] = useState(Math.random() < 0.5); // Randomly set inTune to true or false
-    const [audioDetails, setAudioDetails] = useState(exercise.generateNotes(inTune, intervalDifficulties));
-    const [prevExerciseString, setPrevExerciseString] = useState("");
+    const [exerciseState, setExerciseState] = useState(() => {
+        const inTune = Math.random() < 0.5;
+        return {
+            inTune: inTune,
+            audioDetails: exercise.generateNotes(inTune, intervalDifficulties),
+            prevExerciseString: "",
+        }
+    });
 
     const handleAnswer = (answer: string) => {
         // Debugging
-        alert(`inTune: ${inTune}, Correct Answer: ${exercise.getCorrectAnswer(inTune)}, Your Answer: ${answer}`);
+        // alert(`inTune: ${exerciseState.inTune}, Correct Answer: ${exercise.getCorrectAnswer(exerciseState.inTune)}, Your Answer: ${answer}`);
         setExerciseNum(exerciseNum + 1);
-        if (answer === exercise.getCorrectAnswer(inTune)) {
+        if (answer === exercise.getCorrectAnswer(exerciseState.inTune)) {
             setCorrectNum(correctNum + 1);
         }
         // Set up next exercise
-        setPrevExerciseString(audioDetails.feedback);
-        setInTune(Math.random() < 0.5); 
-        setAudioDetails(exercise.generateNotes(inTune, intervalDifficulties));
+        const inTune = Math.random() < 0.5;
+        setExerciseState({
+            inTune: inTune,
+            audioDetails: exercise.generateNotes(inTune, intervalDifficulties),
+            prevExerciseString: exerciseState.audioDetails.feedback,
+        });
     }
 
     return (
         <View style={styles.container}>
             <Text style={styles.text0}>{id}</Text>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={exercise.soundScript(audioDetails.notes) } />
+            <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes) } />
             <Text>Debug</Text>
-            <Text>Intune: {inTune ? "in tune" : "out of tune"}</Text>
-            <Text>Sound Script: {exercise.soundScript(audioDetails.notes)}</Text>
+            <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
+            <Text>Sound Script: {exercise.soundScript(exerciseState.audioDetails.notes)}</Text>
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />
                 ))}
             </View>
             <View>
-                {exerciseNum > 0 && <Text>{prevExerciseString}</Text>}
+                {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
         </View>
     );
