@@ -31,7 +31,8 @@ type Exercise = {
     soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
-    generateFeedback: (centsOutOfTune: number, ...notes: number[]) => string,
+    // TODO: strongly type feedback?
+    generateFeedback: (args: Record<string, any>) => string,
     difficultyLevels: Record<string, Record<DifficultyLevel, number>>
 }
 
@@ -69,7 +70,7 @@ export const Exercises: Exercise[] = [
                     { midi: note1, detune: note1Detune }
                 ],
                 // feedback: this.generateFeedback(inTune, centsOutOfTune * Math.sign(note1 - note0))
-                feedback: this.generateFeedback(centsOutOfTune, note0, note1)
+                feedback: this.generateFeedback({centsOutOfTune, note0, note1})
                 // centsOutOfTune is positive if interval is too wide, negative if too narrow
                 // TODO: Refactor to simply return the computed feedback string instead of just the cents out of tune
                 // Which will need adustment to account for intervals greater than an octave
@@ -91,8 +92,8 @@ export const Exercises: Exercise[] = [
         getCorrectAnswer: (inTune: Boolean) => {
             return inTune ? 'In Tune' : 'Out of Tune';
         },
-        generateFeedback: (centsOutOfTune: number, ...notes: number[]) => {
-            const [note0, note1] = notes;
+        generateFeedback: (args: Record<string, any>) => {
+            const { centsOutOfTune, note0, note1 } = args;
             // Note different calculation than tuningAdjustments
             return `Previous Exercise: ${intervalDistances[Math.abs(note1-note0)]}, ` + 
                 ((centsOutOfTune == 0) ? "In Tune" : 
@@ -114,6 +115,94 @@ export const Exercises: Exercise[] = [
                 intermediate: 22,
                 advanced: 44
             } // Note that 44 is used to be roughly the complete range of a piano
+        }
+    },
+    {
+        title: "Triad Tuning",
+        grouping: ExerciseGroupings.Intermediate,
+        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: DifficultyLevel }) {
+            const { range, size, outOfTune } = difficulties;
+            const rangeDifficulty = this.difficultyLevels.Range[range];
+            const sizeDifficulty = this.difficultyLevels.Size[size];
+            const outOfTuneDifficulty = this.difficultyLevels.OutOfTune[outOfTune];
+
+            let notes = [
+                {
+                    // 56 is middle C - 1/2 avg triad size (7 semitones) since building up not either direction like interval
+                    midi: getRndInt(56 - rangeDifficulty, 56 + rangeDifficulty),
+                    detune: 0
+                }
+            ];
+
+            for (let i = 1; i < 3; i++) {
+                notes.push({
+                    // Stack major/minor thirds
+                    midi: notes[i - 1].midi + getRndInt(3, 4),
+                    detune: 0
+                });
+                notes[i].detune += justIntonationAdjustments[modulo(notes[i].midi - notes[0].midi, 12)];
+            }
+
+            const centsOutOfTune = (inTune) 
+                ? 0 
+                : getRndInt(outOfTuneDifficulty, 49 - Math.max(...justIntonationAdjustments)) * getRndSign();
+
+            const detuneNote = (inTune) ? -1 : getRndInt(0, 2);
+
+            if (!inTune) notes[detuneNote].detune += centsOutOfTune;
+
+            return {
+                notes: notes,
+                feedback: this.generateFeedback({detuneNote, centsOutOfTune, note0: notes[0].midi, note1: notes[1].midi, note2: notes[2].midi})
+            };
+        },
+        // Can be generalized? I think so
+        soundScript: (notes: Note[]) => `
+            const synths = [];
+
+            ${notes.map((note, index) => `
+                synths[${index}] = new Tone.Synth().toDestination();
+                synths[${index}].detune.value = ${note.detune ?? 0};
+                synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
+            `).join("\n")}
+        `,
+        // Same for now and will specify in feedback string
+        answerChoices: [
+            'In Tune',
+            'Out of Tune',
+        ],
+        getCorrectAnswer: (inTune, ...notes: number[]) => {
+            return inTune ? 'In Tune' : 'Out of Tune';
+        },
+        generateFeedback: (args: Record<string, any>) => {
+            const { detuneNote, centsOutOfTune, note0, note1, note2 } = args;
+            const quality = [["Diminished", "Minor"], ["Major", "Augmented"]]
+                            [note1-note0-3][note2-note1-3];
+            const degree = ["Root", "Third", "Fifth"]
+                           [detuneNote];
+
+            return `Previous Exercise: ${quality} Triad, ` +
+                ((centsOutOfTune == 0)
+                    ? "In Tune" 
+                    : `${degree} ${Math.abs(centsOutOfTune)} cents ${(centsOutOfTune < 0) ? "Flat" : "Sharp"}`);
+        },
+        // Make this more customizable set by user or presets like this?
+        difficultyLevels: {
+            OutOfTune: {
+                easy: 30,
+                intermediate: 15,
+                advanced: 1
+            },
+            Size: {
+                easy: 11,
+                intermediate: 23,
+                advanced: 35
+            },
+            Range: {
+                easy: 0,
+                intermediate: 22,
+                advanced: 44
+            }
         }
     }
 ]
