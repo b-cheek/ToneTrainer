@@ -121,9 +121,8 @@ export const Exercises: Exercise[] = [
         title: "Triad Tuning",
         grouping: ExerciseGroupings.Intermediate,
         generateNotes: function (inTune: Boolean, difficulties: { [key: string]: DifficultyLevel }) {
-            const { range, size, outOfTune } = difficulties;
+            const { range, outOfTune } = difficulties;
             const rangeDifficulty = this.difficultyLevels.Range[range];
-            const sizeDifficulty = this.difficultyLevels.Size[size];
             const outOfTuneDifficulty = this.difficultyLevels.OutOfTune[outOfTune];
 
             let notes = [
@@ -194,5 +193,101 @@ export const Exercises: Exercise[] = [
                 advanced: 44
             }
         }
+    },
+    {
+        title: "Chord Tuning",
+        grouping: ExerciseGroupings.Intermediate,
+        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: DifficultyLevel }) {
+            const { range, size, complexity, outOfTune } = difficulties;
+            const rangeDifficulty = this.difficultyLevels.Range[range];
+            const sizeDifficulty = this.difficultyLevels.Size[size];
+            const complexityDifficulty = this.difficultyLevels.Complexity[complexity];
+            const outOfTuneDifficulty = this.difficultyLevels.OutOfTune[outOfTune];
+
+            let notes = [
+                {
+                    // 56 is middle C - 1/2 avg triad size (7 semitones) since building up not either direction like interval
+                    midi: getRndInt(56 - rangeDifficulty, 56 + rangeDifficulty),
+                    detune: 0
+                }
+            ];
+
+            for (let i = 1; i < complexityDifficulty; i++) {
+                notes.push({
+                    // Stack major/minor thirds
+                    midi: notes[i - 1].midi + getRndInt(3, 4),
+                    detune: 0
+                });
+                notes[i].detune += justIntonationAdjustments[modulo(notes[i].midi - notes[0].midi, 12)];
+            }
+
+            const centsOutOfTune = (inTune) 
+                ? 0 
+                : getRndInt(outOfTuneDifficulty, 49 - Math.max(...justIntonationAdjustments)) * getRndSign();
+
+            const detuneNote = (inTune) ? -1 : getRndInt(0, complexityDifficulty - 1);
+
+            if (!inTune) notes[detuneNote].detune += centsOutOfTune;
+
+            return {
+                notes: notes,
+                feedback: this.generateFeedback({detuneNote, centsOutOfTune, ...notes.map(notes => notes.midi)})
+            };
+        },
+        // Same for now and will specify in feedback string
+        answerChoices: [
+            'In Tune',
+            'Out of Tune',
+        ],
+        getCorrectAnswer: (inTune, ...notes: number[]) => {
+            return inTune ? 'In Tune' : 'Out of Tune';
+        },
+        generateFeedback: (args: Record<string, any>) => {
+            const { detuneNote, centsOutOfTune, ...notes } = args;
+            /* Note that using spread and rest in the way I did results in a notes object taking the shape
+            {
+                "0": 60,
+                "1": 64,
+                "2": 67
+            }
+            etc., couldn't find the relevant documentation to understand if this behavior is necessary 
+            or if I did something weird, but it works
+            */
+
+            const [note0, note1, note2] = Object.values(notes);
+            const quality = [["Diminished", "Minor"], ["Major", "Augmented"]]
+                            [note1-note0-3][note2-note1-3];
+            const degree = ["Root", "Third", "Fifth"]
+                           [detuneNote];
+
+            return `Previous Exercise: ${quality} Triad, ` +
+                ((centsOutOfTune == 0)
+                    ? "In Tune" 
+                    : `${degree} ${Math.abs(centsOutOfTune)} cents ${(centsOutOfTune < 0) ? "Flat" : "Sharp"}`);
+        },
+        // Make this more customizable set by user or presets like this?
+        difficultyLevels: {
+            OutOfTune: {
+                easy: 30,
+                intermediate: 15,
+                advanced: 1
+            },
+            Size: {
+                easy: 11,
+                intermediate: 23,
+                advanced: 35
+            },
+            Complexity: {
+                easy: 4,
+                intermediate: 5,
+                advanced: 7
+            },
+            Range: {
+                easy: 0,
+                intermediate: 22,
+                advanced: 44
+            }
+        }
     }
+
 ]
