@@ -19,6 +19,16 @@ const modulo = (a: number, b: number) => {
     return ((a % b) + b) % b;
 }
 
+export const soundScript = (notes: Note[]) => `
+    const synths = [];
+
+    ${notes.map((note, index) => `
+        synths[${index}] = new Tone.Synth().toDestination();
+        synths[${index}].detune.value = ${note.detune ?? 0};
+        synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
+    `).join("\n")}
+`;
+
 export type Note = {
     midi: number,
     detune?: number,
@@ -28,7 +38,6 @@ type Exercise = {
     title: string,
     grouping: ExerciseGroupings,
     generateNotes: (inTune: Boolean, difficulties: {[key: string]: DifficultyLevel }) => { notes: Note[], feedback: string },
-    soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
     // TODO: strongly type feedback?
@@ -76,15 +85,6 @@ export const Exercises: Exercise[] = [
                 // Which will need adustment to account for intervals greater than an octave
             };
         },
-        soundScript: (notes: Note[]) => `
-            const synths = [];
-
-            ${notes.map((note, index) => `
-                synths[${index}] = new Tone.Synth().toDestination();
-                synths[${index}].detune.value = ${note.detune ?? 0};
-                synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
-            `).join("\n")}
-        `,
         answerChoices: [
             'In Tune',
             'Out of Tune',
@@ -156,16 +156,6 @@ export const Exercises: Exercise[] = [
                 feedback: this.generateFeedback({detuneNote, centsOutOfTune, note0: notes[0].midi, note1: notes[1].midi, note2: notes[2].midi})
             };
         },
-        // Can be generalized? I think so
-        soundScript: (notes: Note[]) => `
-            const synths = [];
-
-            ${notes.map((note, index) => `
-                synths[${index}] = new Tone.Synth().toDestination();
-                synths[${index}].detune.value = ${note.detune ?? 0};
-                synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
-            `).join("\n")}
-        `,
         // Same for now and will specify in feedback string
         answerChoices: [
             'In Tune',

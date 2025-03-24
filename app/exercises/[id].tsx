@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
-import { Exercises } from '@/constants/Exercises';
+import { soundScript, Exercises } from '@/constants/Exercises';
 import { difficultyLevelString, DifficultyLevel } from '@/constants/Values';
 
 const Exercise = () => {
@@ -52,10 +52,10 @@ const Exercise = () => {
         <View style={styles.container}>
             <Text style={styles.text0}>{id}</Text>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes) } />
+            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes) } />
             <Text>Debug</Text>
             <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
-            <Text>Sound Script: {exercise.soundScript(exerciseState.audioDetails.notes)}</Text>
+            <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes)}</Text>
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />
