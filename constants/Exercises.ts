@@ -1,4 +1,4 @@
-import { justIntonationAdjustments, DifficultyLevel, intervalDistances } from "./Values"
+import { justIntonationAdjustments, intervalDistances } from "./Values"
 
 export enum ExerciseGroupings {
     Beginner = "Beginner",
@@ -33,7 +33,6 @@ type Exercise = {
     getCorrectAnswer: (inTune: Boolean) => string,
     generateFeedback: (centsOutOfTune: number, ...notes: number[]) => string,
     difficultyRanges: Record<string, number[]>,
-    difficultyLevels: Record<string, Record<DifficultyLevel, number>>
 }
 
 export const Exercises: Exercise[] = [
@@ -104,26 +103,11 @@ export const Exercises: Exercise[] = [
                 ((centsOutOfTune < 0) ? "Too Narrow" : "Too Wide") + ` (${Math.abs(centsOutOfTune)} cents)`);
         },
         difficultyRanges: {
-            outOfTune: [30, 1], // Note that the order is reversed because more out of tune is easier
-            size: [11, 35],
-            range: [0, 44]
-        },
-        difficultyLevels: {
-            outOfTune: {
-                easy: 30,
-                intermediate: 15,
-                advanced: 1
-            }, // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
-            size: {
-                easy: 11, // Intervals < 1 octave
-                intermediate: 23,
-                advanced: 35
-            },
-            range: {
-                easy: 0, // Means one note in interval will always be middle C
-                intermediate: 22,
-                advanced: 44
-            } // Note that 44 is used to be roughly the complete range of a piano
+            // Note that the order is reversed because more out of tune is easier
+            outOfTune: [30, 1], // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
+            size: [11, 35], // 11 is up to maj7, 35 is 3 octaves
+            // 0 range makes one of the notes always middle C
+            range: [0, 44] // 44 in either direction approximates the complete range of a piano
         }
     }
 ]

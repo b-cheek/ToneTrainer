@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Slider from '@react-native-community/slider';
 import { Exercises } from '@/constants/Exercises';
-import { difficultyLevelString, DifficultyLevel } from '@/constants/Values';
 
 const Exercise = () => {
     
@@ -17,12 +15,6 @@ const Exercise = () => {
     const exercise = Exercises.find(ex => ex.title == id);
     if (!exercise) {
         return <Text>Exercise not found</Text>;
-    }
-
-    const presetDifficulties: Record<string, DifficultyLevel> = {
-        range: difficultyLevelString.easy,
-        size: difficultyLevelString.easy,
-        outOfTune: difficultyLevelString.easy,
     }
 
     const [exerciseState, setExerciseState] = useState(() => {
