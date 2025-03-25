@@ -1,4 +1,4 @@
-import { justIntonationAdjustments, DifficultyLevel, intervalDistances } from "./Values"
+import { justIntonationAdjustments, intervalDistances } from "./Values"
 
 export enum ExerciseGroupings {
     Beginner = "Beginner",
@@ -37,24 +37,28 @@ export type Note = {
 type Exercise = {
     title: string,
     grouping: ExerciseGroupings,
-    generateNotes: (inTune: Boolean, difficulties: {[key: string]: DifficultyLevel }) => { notes: Note[], feedback: string },
+    generateFeedback: (args: Record<string, any>) => string,
+    generateNotes: (inTune: Boolean, difficulties: {[key: string]: number }) => { notes: Note[], feedback: string },
+    soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
-    // TODO: strongly type feedback?
-    generateFeedback: (args: Record<string, any>) => string,
-    difficultyLevels: Record<string, Record<DifficultyLevel, number>>
+    difficultyRanges: Record<string, number[]>,
 }
 
 export const Exercises: Exercise[] = [
     {
         title: "Interval Tuning",
         grouping: ExerciseGroupings.Beginner,
-        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: DifficultyLevel }) {
+        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
             // Extract difficulties
-            const { range, size, outOfTune } = difficulties;
-            const rangeDifficulty = this.difficultyLevels.Range[range];
-            const sizeDifficulty = this.difficultyLevels.Size[size];
-            const outOfTuneDifficulty = this.difficultyLevels.OutOfTune[outOfTune];
+            // const { range, size, outOfTune } = difficulties;
+            // const rangeDifficulty = this.difficultyLevels.range[range];
+            // const sizeDifficulty = this.difficultyLevels.size[size];
+            // const outOfTuneDifficulty = this.difficultyLevels.outOfTune[outOfTune];
+
+            const rangeDifficulty = difficulties.range;
+            const sizeDifficulty = difficulties.size;
+            const outOfTuneDifficulty = difficulties.outOfTune;
 
             // 60 is middle C
             let note0 = getRndInt(60 - rangeDifficulty, 60 + rangeDifficulty);
@@ -99,22 +103,12 @@ export const Exercises: Exercise[] = [
                 ((centsOutOfTune == 0) ? "In Tune" : 
                 ((centsOutOfTune < 0) ? "Too Narrow" : "Too Wide") + ` (${Math.abs(centsOutOfTune)} cents)`);
         },
-        difficultyLevels: {
-            OutOfTune: {
-                easy: 30,
-                intermediate: 15,
-                advanced: 1
-            }, // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
-            Size: {
-                easy: 11, // Intervals < 1 octave
-                intermediate: 23,
-                advanced: 35
-            },
-            Range: {
-                easy: 0, // Means one note in interval will always be middle C
-                intermediate: 22,
-                advanced: 44
-            } // Note that 44 is used to be roughly the complete range of a piano
+        difficultyRanges: {
+            // Note that the order is reversed because more out of tune is easier
+            outOfTune: [30, 1], // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
+            size: [11, 35], // 11 is up to maj7, 35 is 3 octaves
+            // 0 range makes one of the notes always middle C
+            range: [0, 44] // 44 in either direction approximates the complete range of a piano
         }
     },
     {
