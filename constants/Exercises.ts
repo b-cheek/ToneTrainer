@@ -27,11 +27,12 @@ export type Note = {
 type Exercise = {
     title: string,
     grouping: ExerciseGroupings,
-    generateNotes: (inTune: Boolean, difficulties: {[key: string]: DifficultyLevel }) => { notes: Note[], feedback: string },
+    generateNotes: (inTune: Boolean, difficulties: {[key: string]: number }) => { notes: Note[], feedback: string },
     soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
     generateFeedback: (centsOutOfTune: number, ...notes: number[]) => string,
+    difficultyRanges: Record<string, number[]>,
     difficultyLevels: Record<string, Record<DifficultyLevel, number>>
 }
 
@@ -39,12 +40,16 @@ export const Exercises: Exercise[] = [
     {
         title: "Interval Tuning",
         grouping: ExerciseGroupings.Beginner,
-        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: DifficultyLevel }) {
+        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
             // Extract difficulties
-            const { range, size, outOfTune } = difficulties;
-            const rangeDifficulty = this.difficultyLevels.Range[range];
-            const sizeDifficulty = this.difficultyLevels.Size[size];
-            const outOfTuneDifficulty = this.difficultyLevels.OutOfTune[outOfTune];
+            // const { range, size, outOfTune } = difficulties;
+            // const rangeDifficulty = this.difficultyLevels.range[range];
+            // const sizeDifficulty = this.difficultyLevels.size[size];
+            // const outOfTuneDifficulty = this.difficultyLevels.outOfTune[outOfTune];
+
+            const rangeDifficulty = difficulties.range;
+            const sizeDifficulty = difficulties.size;
+            const outOfTuneDifficulty = difficulties.outOfTune;
 
             // 60 is middle C
             let note0 = getRndInt(60 - rangeDifficulty, 60 + rangeDifficulty);
@@ -98,18 +103,23 @@ export const Exercises: Exercise[] = [
                 ((centsOutOfTune == 0) ? "In Tune" : 
                 ((centsOutOfTune < 0) ? "Too Narrow" : "Too Wide") + ` (${Math.abs(centsOutOfTune)} cents)`);
         },
+        difficultyRanges: {
+            outOfTune: [30, 1], // Note that the order is reversed because more out of tune is easier
+            size: [11, 35],
+            range: [0, 44]
+        },
         difficultyLevels: {
-            OutOfTune: {
+            outOfTune: {
                 easy: 30,
                 intermediate: 15,
                 advanced: 1
             }, // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
-            Size: {
+            size: {
                 easy: 11, // Intervals < 1 octave
                 intermediate: 23,
                 advanced: 35
             },
-            Range: {
+            range: {
                 easy: 0, // Means one note in interval will always be middle C
                 intermediate: 22,
                 advanced: 44

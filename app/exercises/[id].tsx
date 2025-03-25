@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import Slider from '@react-native-community/slider';
 import { Exercises } from '@/constants/Exercises';
 import { difficultyLevelString, DifficultyLevel } from '@/constants/Values';
 
@@ -17,17 +19,22 @@ const Exercise = () => {
         return <Text>Exercise not found</Text>;
     }
 
-    const intervalDifficulties: Record<string, DifficultyLevel> = {
+    const presetDifficulties: Record<string, DifficultyLevel> = {
         range: difficultyLevelString.easy,
-        size: difficultyLevelString.advanced,
+        size: difficultyLevelString.easy,
         outOfTune: difficultyLevelString.easy,
     }
 
     const [exerciseState, setExerciseState] = useState(() => {
         const inTune = Math.random() < 0.5;
+        const sliderDifficulties = Object.entries(exercise.difficultyRanges).reduce((acc, [key, value]) => {
+            acc[key] = value[0];
+            return acc;
+        }, {} as Record<string, number>);
         return {
+            sliderDifficulties: sliderDifficulties,
             inTune: inTune,
-            audioDetails: exercise.generateNotes(inTune, intervalDifficulties),
+            audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
             prevExerciseString: "",
         }
     });
@@ -41,20 +48,25 @@ const Exercise = () => {
         }
         // Set up next exercise
         const inTune = Math.random() < 0.5;
-        setExerciseState({
+        setExerciseState((prevState) => ({
+            ...prevState, // Retain previous state (slider difficulties)
             inTune: inTune,
-            audioDetails: exercise.generateNotes(inTune, intervalDifficulties),
+            // audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
+            audioDetails: exercise.generateNotes(inTune, exerciseState.sliderDifficulties),
             prevExerciseString: exerciseState.audioDetails.feedback,
-        });
+        }));
     }
 
     return (
         <View style={styles.container}>
             <Text style={styles.text0}>{id}</Text>
+            
+            {/* <FontAwesome name="gear" size={24} color="black" /> */}
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
             <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes) } />
             <Text>Debug</Text>
             <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
+            <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
             <Text>Sound Script: {exercise.soundScript(exerciseState.audioDetails.notes)}</Text>
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
@@ -63,6 +75,29 @@ const Exercise = () => {
             </View>
             <View>
                 {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
+            </View>
+            <Text>Settings</Text>
+            <View>
+                {Object.keys(exercise.difficultyRanges).map((key) => (
+                    <View key={key}>
+                        <Text>{key}</Text>
+                        <Slider
+                            style={{ width: 200, height: 40 }}
+                            minimumValue={0}
+                            maximumValue={1}
+                            onValueChange={(value) => {
+                                // Update the difficulty level
+                                setExerciseState((prevState) => ({
+                                    ...prevState,
+                                    sliderDifficulties: {
+                                        ...prevState.sliderDifficulties,
+                                        [key]: value*exercise.difficultyRanges[key][1] + (1-value)*exercise.difficultyRanges[key][0],
+                                    },
+                                }));
+                            }}
+                        />
+                    </View>
+                ))}
             </View>
         </View>
     );
