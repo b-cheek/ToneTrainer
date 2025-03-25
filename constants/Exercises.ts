@@ -39,7 +39,6 @@ type Exercise = {
     grouping: ExerciseGroupings,
     generateFeedback: (args: Record<string, any>) => string,
     generateNotes: (inTune: Boolean, difficulties: {[key: string]: number }) => { notes: Note[], feedback: string },
-    soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
     difficultyRanges: Record<string, number[]>,
@@ -50,15 +49,12 @@ export const Exercises: Exercise[] = [
         title: "Interval Tuning",
         grouping: ExerciseGroupings.Beginner,
         generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
-            // Extract difficulties
-            // const { range, size, outOfTune } = difficulties;
-            // const rangeDifficulty = this.difficultyLevels.range[range];
-            // const sizeDifficulty = this.difficultyLevels.size[size];
-            // const outOfTuneDifficulty = this.difficultyLevels.outOfTune[outOfTune];
 
-            const rangeDifficulty = difficulties.range;
-            const sizeDifficulty = difficulties.size;
-            const outOfTuneDifficulty = difficulties.outOfTune;
+            const { 
+                range: rangeDifficulty, 
+                size: sizeDifficulty, 
+                outOfTune: outOfTuneDifficulty 
+            } = difficulties;
 
             // 60 is middle C
             let note0 = getRndInt(60 - rangeDifficulty, 60 + rangeDifficulty);
@@ -114,10 +110,13 @@ export const Exercises: Exercise[] = [
     {
         title: "Triad Tuning",
         grouping: ExerciseGroupings.Intermediate,
-        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: DifficultyLevel }) {
-            const { range, outOfTune } = difficulties;
-            const rangeDifficulty = this.difficultyLevels.Range[range];
-            const outOfTuneDifficulty = this.difficultyLevels.OutOfTune[outOfTune];
+        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
+
+            const { 
+                range: rangeDifficulty, 
+                size: sizeDifficulty, 
+                outOfTune: outOfTuneDifficulty 
+            } = difficulties;
 
             let notes = [
                 {
@@ -170,33 +169,22 @@ export const Exercises: Exercise[] = [
                     : `${degree} ${Math.abs(centsOutOfTune)} cents ${(centsOutOfTune < 0) ? "Flat" : "Sharp"}`);
         },
         // Make this more customizable set by user or presets like this?
-        difficultyLevels: {
-            OutOfTune: {
-                easy: 30,
-                intermediate: 15,
-                advanced: 1
-            },
-            Size: {
-                easy: 11,
-                intermediate: 23,
-                advanced: 35
-            },
-            Range: {
-                easy: 0,
-                intermediate: 22,
-                advanced: 44
-            }
-        }
+        difficultyRanges: {
+            outOfTune: [30, 1],
+            size: [11, 35],
+            range: [0, 44] 
+        },
     },
     {
         title: "Chord Tuning",
         grouping: ExerciseGroupings.Intermediate,
-        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: DifficultyLevel }) {
-            const { range, size, complexity, outOfTune } = difficulties;
-            const rangeDifficulty = this.difficultyLevels.Range[range];
-            const sizeDifficulty = this.difficultyLevels.Size[size];
-            const complexityDifficulty = this.difficultyLevels.Complexity[complexity];
-            const outOfTuneDifficulty = this.difficultyLevels.OutOfTune[outOfTune];
+        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
+            const { 
+                range: rangeDifficulty, 
+                size: sizeDifficulty, 
+                complexity: complexityDifficulty, 
+                outOfTune: outOfTuneDifficulty 
+            } = difficulties;
 
             let notes = [
                 {
@@ -260,28 +248,12 @@ export const Exercises: Exercise[] = [
                     : `${degree} ${Math.abs(centsOutOfTune)} cents ${(centsOutOfTune < 0) ? "Flat" : "Sharp"}`);
         },
         // Make this more customizable set by user or presets like this?
-        difficultyLevels: {
-            OutOfTune: {
-                easy: 30,
-                intermediate: 15,
-                advanced: 1
-            },
-            Size: {
-                easy: 11,
-                intermediate: 23,
-                advanced: 35
-            },
-            Complexity: {
-                easy: 4,
-                intermediate: 5,
-                advanced: 7
-            },
-            Range: {
-                easy: 0,
-                intermediate: 22,
-                advanced: 44
-            }
-        }
+        difficultyRanges: {
+            outOfTune: [30, 1],
+            size: [11, 35],
+            complexity: [3, 7], // Number of notes in chord
+            range: [0, 44] 
+        },
     }
 
 ]
