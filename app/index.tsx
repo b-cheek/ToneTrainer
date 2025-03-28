@@ -2,11 +2,12 @@ import React from 'react';
 import { Text, View, FlatList, Button, StyleSheet } from 'react-native';
 import ExerciseList from '@/components/ExerciseList';
 import { Exercises, ExerciseGroupings } from '@/constants/Exercises';
+import { Stack } from 'expo-router';
 
 export default function Index() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text0}>Exercises</Text>
+      <Stack.Screen options={{title: "Exercises"}}/>
       <View style={styles.exerciseContainer}>
         <ExerciseList title="Beginner" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Beginner)} />
         <ExerciseList title="Intermediate" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Intermediate)} />

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, Button, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
 import { Exercises } from '@/constants/Exercises';
@@ -51,7 +51,7 @@ const Exercise = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text0}>{id}</Text>
+            <Stack.Screen options={{title: id}}/>
             
             {/* <FontAwesome name="gear" size={24} color="black" /> */}
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
