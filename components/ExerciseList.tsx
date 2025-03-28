@@ -1,37 +1,24 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { Text, View, FlatList } from 'react-native';
 import { Link } from 'expo-router';
+import { globalStyles } from '@/constants/Styles';
 
-const ExerciseList = (props: { title: string, exercises: { title: string }[] }) => {
+const ExerciseList = (props: { name: string, exerciseData: { id: string, title: string }[] }) => {
   return (
-    <View style={styles.container}>
-        <Text style={styles.text1}>{props.title}</Text>
-        <FlatList
-            data={props.exercises}
-            renderItem={({ item }) => (
-            <Link href={{
-              pathname: '/exercises/[id]',
-              params: { id: item.title }
-            }}>{item.title}</Link>
-            )}
-            keyExtractor={(item) => item.title} // TODO: use a unique ID instead of the title?
-        >
-        </FlatList>
+    <View style={globalStyles.container}>
+      <Text style={globalStyles.text1}>{props.name}</Text>
+      <FlatList
+          data={props.exerciseData}
+          renderItem={({ item }) => (
+          <Link href={{
+            pathname: '/exercises/[id]',
+            params: { id: item.id }
+          }}>{item.title}</Link>
+          )}
+          keyExtractor={(item) => item.id}
+      >
+      </FlatList>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text1: {
-    fontSize: 20,
-    textDecorationLine: 'underline',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-});
 
 export default ExerciseList;

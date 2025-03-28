@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
 import { Exercises } from '@/constants/Exercises';
+import { globalStyles } from '@/constants/Styles';
 
 const Exercise = () => {
     
@@ -12,7 +13,7 @@ const Exercise = () => {
 
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
-    const exercise = Exercises.find(ex => ex.title == id);
+    const exercise = Exercises[id];
     if (!exercise) {
         return <Text>Exercise not found</Text>;
     }
@@ -50,8 +51,8 @@ const Exercise = () => {
     }
 
     return (
-        <View style={styles.container}>
-            <Stack.Screen options={{title: id}}/>
+        <View style={globalStyles.container}>
+            <Stack.Screen options={{ title: exercise.title }}/>
             
             {/* <FontAwesome name="gear" size={24} color="black" /> */}
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
@@ -96,16 +97,6 @@ const Exercise = () => {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    text0: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 20,
-    },
     answersContainer: {
         flexDirection: 'row',
         alignItems: 'center',

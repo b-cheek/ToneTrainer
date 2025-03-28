@@ -1,6 +1,11 @@
 import { justIntonationAdjustments, intervalDistances } from "./Values"
 
-export enum ExerciseGroupings {
+export enum ExerciseCategories {
+    Intervals = "Intervals",
+    Chords = "Chords"
+}
+
+export enum ExerciseDifficulties {
     Beginner = "Beginner",
     Intermediate = "Intermediate",
     Advanced = "Advanced"
@@ -24,21 +29,23 @@ export type Note = {
     detune?: number,
 }
 
-type Exercise = {
+export type Exercise = {
     title: string,
-    grouping: ExerciseGroupings,
+    category: ExerciseCategories,
+    difficulty: ExerciseDifficulties,
     generateNotes: (inTune: Boolean, difficulties: {[key: string]: number }) => { notes: Note[], feedback: string },
     soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
     generateFeedback: (centsOutOfTune: number, ...notes: number[]) => string,
-    difficultyRanges: Record<string, number[]>,
+    difficultyRanges: Record<string, number[]>
 }
 
-export const Exercises: Exercise[] = [
-    {
+export const Exercises: Record<string, Exercise> = {
+    "interval-tuning": {
         title: "Interval Tuning",
-        grouping: ExerciseGroupings.Beginner,
+        category: ExerciseCategories.Intervals,
+        difficulty: ExerciseDifficulties.Beginner,
         generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
             // Extract difficulties
             // const { range, size, outOfTune } = difficulties;
@@ -110,4 +117,16 @@ export const Exercises: Exercise[] = [
             range: [0, 44] // 44 in either direction approximates the complete range of a piano
         }
     }
-]
+}
+
+export const categorizedExerciseData: Record<ExerciseCategories, { id: string, title: string }[]> = Object.entries(Exercises).reduce(
+    (accumulator, [id, exercise]) => {
+        let category = exercise.category;
+        if (!(category in accumulator)) {
+        accumulator[category] = [];
+        }
+        accumulator[category].push({ id: id, title: exercise.title });
+        return accumulator;
+    },
+    {} as Record<ExerciseCategories, { id: string, title: string }[]>
+);
