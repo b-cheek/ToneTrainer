@@ -8,14 +8,9 @@
 <body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
     <script>
-        const synth0 = new Tone.Synth().toDestination();
-        const synth1 = new Tone.Synth().toDestination();
-        // 60 is middle C
-        note0 = getRndInt(${60 - IntervalRangeDifficulty.easy}, ${60 + IntervalRangeDifficulty.easy});
-        note1 = note0 + getRndInt(${-IntervalSizeDifficulty.easy}, ${IntervalSizeDifficulty.easy});
-        synth0.triggerAttackRelease(Tone.Frequency(note0, "midi"), "2n");
-        synth1.detune.value = (inTune) ? 0 : getRndInt(${outOfTuneDifficulty.easy}, 50) * getRndSign();
-        synth1.triggerAttackRelease(Tone.Frequency(note1, "midi"), "2n");
+        let testBuf = new Tone.Buffer("./trimmedSamples/bassoon/A2.mp3", function(){alert("successful load")}, function(e){alert("failed load: " + e)});
+        const sampler = new Tone.Sampler({urls: {A2: testBuf}}).toDestination();
+        alert(testBuf.loaded);
     </script>
     <button onclick="playSound()">Play</button>
 </body>
