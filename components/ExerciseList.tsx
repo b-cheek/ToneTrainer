@@ -1,37 +1,46 @@
-import React from 'react';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
-import { Link } from 'expo-router';
+import { Text, View, StyleSheet, Pressable } from 'react-native';
+import { router } from 'expo-router';
+import { globalStyles } from '@/constants/Styles';
+import { ExerciseDifficulties } from '@/constants/Exercise';
+import DifficultyText from '@/components/DifficultyText';
 
-const ExerciseList = (props: { title: string, exercises: { title: string }[] }) => {
+const ExerciseList = (props: { name: string, exerciseData: { id: string, title: string, difficulty: ExerciseDifficulties }[] }) => {
   return (
-    <View style={styles.container}>
-        <Text style={styles.text1}>{props.title}</Text>
-        <FlatList
-            data={props.exercises}
-            renderItem={({ item }) => (
-            <Link href={{
-              pathname: '/exercises/[id]',
-              params: { id: item.title }
-            }}>{item.title}</Link>
-            )}
-            keyExtractor={(item) => item.title} // TODO: use a unique ID instead of the title?
-        >
-        </FlatList>
+    <View style={styles.parent}>
+      <Text style={globalStyles.text1}>{props.name}</Text>
+      {props.exerciseData.map(item => (
+        <Pressable onPress={() => router.push({
+          pathname: '/exercises/[id]',
+          params: { id : item.id }
+        })} key={item.id} style={styles.exercise}>
+          <Text>{item.title}</Text>
+          <View style={styles.difficultyAndCompletion}>
+            <DifficultyText difficulty={item.difficulty}/>
+            <Text>0% completed</Text>
+          </View>
+        </Pressable>
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  parent: {
+    flexGrow: 1,
+    flexShrink: 1,
+    width: '80%'
   },
-  text1: {
-    fontSize: 20,
-    textDecorationLine: 'underline',
-    marginTop: 20,
-    marginBottom: 20,
+  exercise: {
+    ...globalStyles.column,
+    backgroundColor: 'lightgray',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'black',
   },
+  difficultyAndCompletion: {
+    ...globalStyles.row,
+    justifyContent: 'space-between'
+  }
 });
 
 export default ExerciseList;
