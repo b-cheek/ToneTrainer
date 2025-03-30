@@ -1,27 +1,35 @@
-import { View, StyleSheet } from 'react-native';
+import { StrictMode } from 'react';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import ExerciseList from '@/components/ExerciseList';
 import { categorizedExerciseData } from '@/constants/Exercises';
-import { globalStyles } from '@/constants/Styles';
 import { Stack } from 'expo-router';
+import { globalStyles } from '@/constants/Styles';
 
 export default function Index() {
   return (
-    <View style={globalStyles.container}>
+    <StrictMode>
+    <View style={styles.parent}>
       <Stack.Screen options={{ title: "Exercises" }}/>
-      <View style={styles.exerciseContainer}>
-        {Object.entries(categorizedExerciseData).map(([category, exerciseData]) => {
-          return <ExerciseList name={category} exerciseData={exerciseData} />;
-        })}
-      </View>
+      <ScrollView contentContainerStyle={styles.exerciseContainer}>
+        {Object.entries(categorizedExerciseData).map(([category, exerciseData]) => (
+          <ExerciseList key={category} name={category} exerciseData={exerciseData} />
+        ))}
+        <View style={styles.bottomMargin} />
+      </ScrollView>
     </View>
+    </StrictMode>
   );
 }
 
 const styles = StyleSheet.create({
   exerciseContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 15
+    ...globalStyles.column,
+    alignItems: 'center'
   },
+  parent: {
+    height: '100%'
+  },
+  bottomMargin: {
+    height: 20
+  }
 });
