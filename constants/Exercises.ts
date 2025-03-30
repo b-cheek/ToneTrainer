@@ -108,74 +108,6 @@ export const Exercises: Exercise[] = [
         }
     },
     {
-        title: "Triad Tuning",
-        grouping: ExerciseGroupings.Intermediate,
-        generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
-
-            const { 
-                range: rangeDifficulty, 
-                size: sizeDifficulty, 
-                outOfTune: outOfTuneDifficulty 
-            } = difficulties;
-
-            let notes = [
-                {
-                    // 56 is middle C - 1/2 avg triad size (7 semitones) since building up not either direction like interval
-                    midi: getRndInt(56 - rangeDifficulty, 56 + rangeDifficulty),
-                    detune: 0
-                }
-            ];
-
-            for (let i = 1; i < 3; i++) {
-                notes.push({
-                    // Stack major/minor thirds
-                    midi: notes[i - 1].midi + getRndInt(3, 4),
-                    detune: 0
-                });
-                notes[i].detune += justIntonationAdjustments[modulo(notes[i].midi - notes[0].midi, 12)];
-            }
-
-            const centsOutOfTune = (inTune) 
-                ? 0 
-                : getRndInt(outOfTuneDifficulty, 49 - Math.max(...justIntonationAdjustments)) * getRndSign();
-
-            const detuneNote = (inTune) ? -1 : getRndInt(0, 2);
-
-            if (!inTune) notes[detuneNote].detune += centsOutOfTune;
-
-            return {
-                notes: notes,
-                feedback: this.generateFeedback({detuneNote, centsOutOfTune, note0: notes[0].midi, note1: notes[1].midi, note2: notes[2].midi})
-            };
-        },
-        // Same for now and will specify in feedback string
-        answerChoices: [
-            'In Tune',
-            'Out of Tune',
-        ],
-        getCorrectAnswer: (inTune, ...notes: number[]) => {
-            return inTune ? 'In Tune' : 'Out of Tune';
-        },
-        generateFeedback: (args: Record<string, any>) => {
-            const { detuneNote, centsOutOfTune, note0, note1, note2 } = args;
-            const quality = [["Diminished", "Minor"], ["Major", "Augmented"]]
-                            [note1-note0-3][note2-note1-3];
-            const degree = ["Root", "Third", "Fifth"]
-                           [detuneNote];
-
-            return `Previous Exercise: ${quality} Triad, ` +
-                ((centsOutOfTune == 0)
-                    ? "In Tune" 
-                    : `${degree} ${Math.abs(centsOutOfTune)} cents ${(centsOutOfTune < 0) ? "Flat" : "Sharp"}`);
-        },
-        // Make this more customizable set by user or presets like this?
-        difficultyRanges: {
-            outOfTune: [30, 1],
-            size: [11, 35],
-            range: [0, 44] 
-        },
-    },
-    {
         title: "Chord Tuning",
         grouping: ExerciseGroupings.Intermediate,
         generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
@@ -186,25 +118,17 @@ export const Exercises: Exercise[] = [
                 outOfTune: outOfTuneDifficulty 
             } = difficulties;
 
+            const validChords = chords.filter(chord => chord.shape.length + 1 <= complexityDifficulty)
+            const chord = validChords[getRndInt(0, validChords.length - 1)]
+            const chordCenter = 60 - Math.floor(chord.shape[chord.shape.length - 1] / 2);
+
             let notes = [
                 {
                     // 56 is middle C - 1/2 avg triad size (7 semitones) since building up not either direction like interval
-                    midi: getRndInt(56 - rangeDifficulty, 56 + rangeDifficulty),
+                    midi: getRndInt(chordCenter - rangeDifficulty, chordCenter + rangeDifficulty),
                     detune: 0
                 }
             ];
-
-            // for (let i = 1; i < complexityDifficulty; i++) {
-            //     notes.push({
-            //         // Stack major/minor thirds
-            //         midi: notes[i - 1].midi + getRndInt(3, 4),
-            //         detune: 0
-            //     });
-            //     notes[i].detune += justIntonationAdjustments[modulo(notes[i].midi - notes[0].midi, 12)];
-            // }
-
-            const validChords = chords.filter(chord => chord.shape.length + 1 <= complexityDifficulty)
-            const chord = validChords[getRndInt(0, validChords.length - 1)]
 
             for (let i = 0; i < chord.shape.length; i++) {
                 notes.push({
