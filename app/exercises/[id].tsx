@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, Button, StyleSheet, View } from 'react-native';
+import { Text, Button, StyleSheet, View, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
@@ -51,10 +51,8 @@ export const Exercise = () => {
     }
 
     return (
-        <View style={globalStyles.container}>
+        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
-            
-            {/* <FontAwesome name="gear" size={24} color="black" /> */}
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
             <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes) } />
             <Text>Debug</Text>
@@ -92,7 +90,7 @@ export const Exercise = () => {
                     </View>
                 ))}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
