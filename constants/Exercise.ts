@@ -32,9 +32,18 @@ export type Exercise = {
     category: ExerciseCategories,
     difficulty: ExerciseDifficulties,
     generateNotes: (inTune: Boolean, difficulties: {[key: string]: number }) => { notes: Note[], feedback: string },
-    soundScript: (notes: Note[]) => string,
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
-    generateFeedback: (centsOutOfTune: number, ...notes: number[]) => string,
+    generateFeedback: (args: Record<string, any>) => string,
     difficultyRanges: Record<string, number[]>
 }
+
+export const soundScript = (notes: Note[]) => `
+    const synths = [];
+
+    ${notes.map((note, index) => `
+        synths[${index}] = new Tone.Synth().toDestination();
+        synths[${index}].detune.value = ${note.detune ?? 0};
+        synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
+    `).join("\n")}
+`;
