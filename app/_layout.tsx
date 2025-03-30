@@ -1,5 +1,10 @@
 import { Stack } from "expo-router";
+import { StrictMode } from 'react';
 
 export default function RootLayout() {
-  return <Stack screenOptions={{ headerTitleAlign: "center" }} />;
+  return (
+    <StrictMode>
+      <Stack screenOptions={{ headerTitleAlign: "center" }} />
+    </StrictMode>
+  );
 }

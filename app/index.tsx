@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import ExerciseList from '@/components/ExerciseList';
 import { categorizedExerciseData } from '@/constants/Exercises';
@@ -7,7 +6,6 @@ import { globalStyles } from '@/constants/Styles';
 
 export default function Index() {
   return (
-    <StrictMode>
     <View style={styles.parent}>
       <Stack.Screen options={{ title: "Exercises" }}/>
       <ScrollView contentContainerStyle={styles.exerciseContainer}>
@@ -17,7 +15,6 @@ export default function Index() {
         <View style={styles.bottomMargin} />
       </ScrollView>
     </View>
-    </StrictMode>
   );
 }
 
