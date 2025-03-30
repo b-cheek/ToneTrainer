@@ -1,9 +1,11 @@
 import { justIntonationAdjustments, intervalDistances, chords, degreeLabels } from "./Values"
+import * as ExerciseModules from "./ex"
+import { Exercise, ExerciseCategories, ExerciseDifficulties } from "./Exercise"
 
-export enum ExerciseGroupings {
-    Beginner = "Beginner",
-    Intermediate = "Intermediate",
-    Advanced = "Advanced"
+export * from "./Exercise"
+
+export const Exercises: Record<string, Exercise> = {
+    "interval-tuning": ExerciseModules.IntervalTuning
 }
 
 const getRndInt = (min: number, max: number) => {
@@ -181,3 +183,14 @@ export const Exercises: Exercise[] = [
     }
 
 ]
+export const categorizedExerciseData: Record<ExerciseCategories, { id: string, title: string, difficulty: ExerciseDifficulties }[]> = Object.entries(Exercises).reduce(
+    (accumulator, [id, exercise]) => {
+        let category = exercise.category;
+        if (!(category in accumulator)) {
+            accumulator[category] = [];
+        }
+        accumulator[category].push({ id: id, title: exercise.title, difficulty: exercise.difficulty });
+        return accumulator;
+    },
+    {} as Record<ExerciseCategories, { id: string, title: string, difficulty: ExerciseDifficulties }[]>
+);
