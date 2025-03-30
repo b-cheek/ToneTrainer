@@ -25,10 +25,10 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string }>((props, ref) =>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
                     <script>
                     function playSound() {
-                        ${soundScript}
+                    ${soundScript}
                     }
                     </script>
-                    `,
+                `,
             }}
         />
     );

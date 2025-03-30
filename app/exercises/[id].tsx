@@ -3,7 +3,7 @@ import { Text, Button, StyleSheet, View } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
-import { Exercises } from '@/constants/Exercises';
+import { soundScript, Exercises } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
 
 export const Exercise = () => {
@@ -56,11 +56,11 @@ export const Exercise = () => {
             
             {/* <FontAwesome name="gear" size={24} color="black" /> */}
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes) } />
+            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes) } />
             <Text>Debug</Text>
             <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
             <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
-            <Text>Sound Script: {exercise.soundScript(exerciseState.audioDetails.notes)}</Text>
+            <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes)}</Text>
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />

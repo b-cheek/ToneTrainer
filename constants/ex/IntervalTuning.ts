@@ -7,15 +7,12 @@ export const IntervalTuning: Exercise = {
     category: ExerciseCategories.Intervals,
     difficulty: ExerciseDifficulties.Beginner,
     generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
-        // Extract difficulties
-        // const { range, size, outOfTune } = difficulties;
-        // const rangeDifficulty = this.difficultyLevels.range[range];
-        // const sizeDifficulty = this.difficultyLevels.size[size];
-        // const outOfTuneDifficulty = this.difficultyLevels.outOfTune[outOfTune];
 
-        const rangeDifficulty = difficulties.range;
-        const sizeDifficulty = difficulties.size;
-        const outOfTuneDifficulty = difficulties.outOfTune;
+        const { 
+            range: rangeDifficulty, 
+            size: sizeDifficulty, 
+            outOfTune: outOfTuneDifficulty 
+        } = difficulties;
 
         // 60 is middle C
         let note0 = getRndInt(60 - rangeDifficulty, 60 + rangeDifficulty);
@@ -40,21 +37,12 @@ export const IntervalTuning: Exercise = {
                 { midi: note1, detune: note1Detune }
             ],
             // feedback: this.generateFeedback(inTune, centsOutOfTune * Math.sign(note1 - note0))
-            feedback: this.generateFeedback(centsOutOfTune, note0, note1)
+            feedback: this.generateFeedback({centsOutOfTune, note0, note1})
             // centsOutOfTune is positive if interval is too wide, negative if too narrow
             // TODO: Refactor to simply return the computed feedback string instead of just the cents out of tune
             // Which will need adustment to account for intervals greater than an octave
         };
     },
-    soundScript: (notes: Note[]) => `
-        const synths = [];
-
-        ${notes.map((note, index) => `
-            synths[${index}] = new Tone.Synth().toDestination();
-            synths[${index}].detune.value = ${note.detune ?? 0};
-            synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
-        `).join("\n")}
-    `,
     answerChoices: [
         'In Tune',
         'Out of Tune',
@@ -62,8 +50,8 @@ export const IntervalTuning: Exercise = {
     getCorrectAnswer: (inTune: Boolean) => {
         return inTune ? 'In Tune' : 'Out of Tune';
     },
-    generateFeedback: (centsOutOfTune: number, ...notes: number[]) => {
-        const [note0, note1] = notes;
+    generateFeedback: (args: Record<string, any>) => {
+        const { centsOutOfTune, note0, note1 } = args;
         // Note different calculation than tuningAdjustments
         return `Previous Exercise: ${intervalDistances[Math.abs(note1-note0)]}, ` + 
             ((centsOutOfTune == 0) ? "In Tune" : 
