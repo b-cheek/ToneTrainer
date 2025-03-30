@@ -6,7 +6,7 @@ import Slider from '@react-native-community/slider';
 import { Exercises } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
 
-const Exercise = () => {
+export const Exercise = () => {
     
     const [exerciseNum, setExerciseNum] = useState(0);
     const [correctNum, setCorrectNum] = useState(0);
