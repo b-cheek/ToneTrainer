@@ -1,4 +1,4 @@
-import { justIntonationAdjustments, intervalDistances } from "./Values"
+import { justIntonationAdjustments, intervalDistances, chords, degreeLabels } from "./Values"
 
 export enum ExerciseGroupings {
     Beginner = "Beginner",
@@ -182,7 +182,7 @@ export const Exercises: Exercise[] = [
             const { 
                 range: rangeDifficulty, 
                 size: sizeDifficulty, 
-                complexity: complexityDifficulty, 
+                complexity: complexityDifficulty, // number of notes in the chord
                 outOfTune: outOfTuneDifficulty 
             } = difficulties;
 
@@ -194,13 +194,24 @@ export const Exercises: Exercise[] = [
                 }
             ];
 
-            for (let i = 1; i < complexityDifficulty; i++) {
+            // for (let i = 1; i < complexityDifficulty; i++) {
+            //     notes.push({
+            //         // Stack major/minor thirds
+            //         midi: notes[i - 1].midi + getRndInt(3, 4),
+            //         detune: 0
+            //     });
+            //     notes[i].detune += justIntonationAdjustments[modulo(notes[i].midi - notes[0].midi, 12)];
+            // }
+
+            const validChords = chords.filter(chord => chord.shape.length + 1 <= complexityDifficulty)
+            const chord = validChords[getRndInt(0, validChords.length - 1)]
+
+            for (let i = 0; i < chord.shape.length; i++) {
                 notes.push({
-                    // Stack major/minor thirds
-                    midi: notes[i - 1].midi + getRndInt(3, 4),
+                    midi: notes[0].midi + chord.shape[i],
                     detune: 0
                 });
-                notes[i].detune += justIntonationAdjustments[modulo(notes[i].midi - notes[0].midi, 12)];
+                notes[i+1].detune += justIntonationAdjustments[modulo(notes[i+1].midi - notes[0].midi, 12)];
             }
 
             const centsOutOfTune = (inTune) 
@@ -213,7 +224,11 @@ export const Exercises: Exercise[] = [
 
             return {
                 notes: notes,
-                feedback: this.generateFeedback({detuneNote, centsOutOfTune, ...notes.map(notes => notes.midi)})
+                feedback: this.generateFeedback({
+                    detuneDegree: detuneNote == -1 ? -1 : degreeLabels[notes[detuneNote].midi-notes[0].midi], 
+                    centsOutOfTune, 
+                    title: chord.title
+                })
             };
         },
         // Same for now and will specify in feedback string
@@ -225,27 +240,12 @@ export const Exercises: Exercise[] = [
             return inTune ? 'In Tune' : 'Out of Tune';
         },
         generateFeedback: (args: Record<string, any>) => {
-            const { detuneNote, centsOutOfTune, ...notes } = args;
-            /* Note that using spread and rest in the way I did results in a notes object taking the shape
-            {
-                "0": 60,
-                "1": 64,
-                "2": 67
-            }
-            etc., couldn't find the relevant documentation to understand if this behavior is necessary 
-            or if I did something weird, but it works
-            */
+            const { detuneDegree, centsOutOfTune, title } = args;
 
-            const [note0, note1, note2] = Object.values(notes);
-            const quality = [["Diminished", "Minor"], ["Major", "Augmented"]]
-                            [note1-note0-3][note2-note1-3];
-            const degree = ["Root", "Third", "Fifth"]
-                           [detuneNote];
-
-            return `Previous Exercise: ${quality} Triad, ` +
+            return `Previous Exercise: ${title}, ` +
                 ((centsOutOfTune == 0)
                     ? "In Tune" 
-                    : `${degree} ${Math.abs(centsOutOfTune)} cents ${(centsOutOfTune < 0) ? "Flat" : "Sharp"}`);
+                    : `${detuneDegree} ${Math.abs(centsOutOfTune)} cents ${(centsOutOfTune < 0) ? "flat" : "sharp"}`);
         },
         // Make this more customizable set by user or presets like this?
         difficultyRanges: {
