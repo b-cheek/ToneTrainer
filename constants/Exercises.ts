@@ -5,12 +5,8 @@ import { Exercise, ExerciseCategories, ExerciseDifficulties } from "./Exercise"
 export * from "./Exercise"
 
 export const Exercises: Record<string, Exercise> = {
-    "interval-tuning": ExerciseModules.IntervalTuning
-}
-
-// because js uses remainder not modulo :(
-const modulo = (a: number, b: number) => {
-    return ((a % b) + b) % b;
+    "interval-tuning": ExerciseModules.IntervalTuning,
+    "chord-tuning": ExerciseModules.ChordTuning
 }
 
 export const categorizedExerciseData: Record<ExerciseCategories, { id: string, title: string, difficulty: ExerciseDifficulties }[]> = Object.entries(Exercises).reduce(
