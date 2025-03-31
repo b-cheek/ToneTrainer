@@ -8,6 +8,7 @@ import { globalStyles } from '@/constants/Styles';
 import Storage from 'expo-sqlite/kv-store';
 
 export const Exercise = () => {
+    const [debug, setDebug] = useState(false); // Debug mode to show additional information
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises[id];
@@ -60,10 +61,22 @@ export const Exercise = () => {
             <Stack.Screen options={{ title: exercise.title }}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
             <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes) } />
-            <Text>Debug</Text>
-            <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
-            <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
-            <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes)}</Text>
+            <Button
+                title="toggle debug"
+                onPress={() => {
+                    // Toggle debug mode
+                    setDebug(!debug);
+                }}
+            />
+
+            { debug && (
+            <View>
+                <Text>Debug</Text>
+                <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
+                <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
+                <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes)}</Text>
+            </View>
+            )}
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />
