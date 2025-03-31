@@ -1,6 +1,6 @@
 import { View, ScrollView, StyleSheet } from 'react-native';
 import ExerciseList from '@/components/ExerciseList';
-import { categorizedExerciseData } from '@/constants/Exercises';
+import { Categories } from '@/constants/Exercises';
 import { Stack } from 'expo-router';
 import { globalStyles } from '@/constants/Styles';
 
@@ -9,8 +9,8 @@ export default function Index() {
     <View style={styles.parent}>
       <Stack.Screen options={{ title: "Exercises" }}/>
       <ScrollView contentContainerStyle={styles.exerciseContainer}>
-        {Object.entries(categorizedExerciseData).map(([category, exerciseData]) => (
-          <ExerciseList key={category} name={category} exerciseData={exerciseData} />
+        {Object.entries(Categories).map(([category, exercises]) => (
+          <ExerciseList key={category} name={category} exercises={exercises} />
         ))}
         <View style={styles.bottomMargin} />
       </ScrollView>

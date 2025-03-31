@@ -1,6 +1,5 @@
-
 import * as ExerciseModules from "./ex"
-import { Exercise, ExerciseCategories, ExerciseDifficulties } from "./Exercise"
+import { Exercise, ExerciseCategories } from "./Exercise"
 
 export * from "./Exercise"
 
@@ -9,14 +8,14 @@ export const Exercises: Record<string, Exercise> = {
     "chord-tuning": ExerciseModules.ChordTuning
 }
 
-export const categorizedExerciseData: Record<ExerciseCategories, { id: string, title: string, difficulty: ExerciseDifficulties }[]> = Object.entries(Exercises).reduce(
+export const Categories: Record<ExerciseCategories, (Exercise & { id: string })[]> = Object.entries(Exercises).reduce(
     (accumulator, [id, exercise]) => {
         let category = exercise.category;
         if (!(category in accumulator)) {
             accumulator[category] = [];
         }
-        accumulator[category].push({ id: id, title: exercise.title, difficulty: exercise.difficulty });
+        accumulator[category].push({ ...exercise, id: id });
         return accumulator;
     },
-    {} as Record<ExerciseCategories, { id: string, title: string, difficulty: ExerciseDifficulties }[]>
+    {} as Record<ExerciseCategories, (Exercise & { id: string })[]>
 );
