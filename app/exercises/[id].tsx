@@ -3,20 +3,21 @@ import { Text, Button, StyleSheet, View, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
-import { soundScript, Exercises } from '@/constants/Exercises';
+import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
+import Storage from 'expo-sqlite/kv-store';
 
 export const Exercise = () => {
-    
-    const [exerciseNum, setExerciseNum] = useState(0);
-    const [correctNum, setCorrectNum] = useState(0);
-
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises[id];
-    if (!exercise) {
+    const serialized = Storage.getItemSync(id);
+    if (exercise === undefined || serialized === null) {
         return <Text>Exercise not found</Text>;
     }
+    const initialData: ExerciseData = JSON.parse(serialized);
+    const [exerciseNum, setExerciseNum] = useState(initialData.completed);
+    const [correctNum, setCorrectNum] = useState(initialData.correct);
 
     const [exerciseState, setExerciseState] = useState(() => {
         const inTune = Math.random() < 0.5;
@@ -32,12 +33,16 @@ export const Exercise = () => {
         }
     });
 
-    const handleAnswer = (answer: string) => {
+    const handleAnswer = async (answer: string) => {
         // Debugging
         // alert(`inTune: ${exerciseState.inTune}, Correct Answer: ${exercise.getCorrectAnswer(exerciseState.inTune)}, Your Answer: ${answer}`);
-        setExerciseNum(exerciseNum + 1);
+        const newCompleted = exerciseNum + 1;
+        setExerciseNum(newCompleted);
+        await Storage.mergeItem(id, JSON.stringify({ completed: newCompleted }));
         if (answer === exercise.getCorrectAnswer(exerciseState.inTune)) {
-            setCorrectNum(correctNum + 1);
+            const newCorrect = correctNum + 1;
+            setCorrectNum(newCorrect);
+            await Storage.mergeItem(id, JSON.stringify({ correct: newCorrect }));
         }
         // Set up next exercise
         const inTune = Math.random() < 0.5;

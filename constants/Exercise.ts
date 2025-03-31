@@ -38,6 +38,11 @@ export type Exercise = {
     difficultyRanges: Record<string, number[]>
 }
 
+export type ExerciseData = {
+    completed: number,
+    correct: number
+}
+
 export const soundScript = (notes: Note[]) => `
     const synths = [];
 
