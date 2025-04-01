@@ -53,13 +53,35 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                     try {
                         const audioFiles = ${JSON.stringify(audioFiles)};
                         alert("Audio files loaded: " + JSON.stringify(audioFiles));
-                        const A2url = audioFiles.A2;
-                        let testBuf = new Tone.Buffer(A2url, function(){alert("successful load")}, function(e){alert("failed load: " + e)});
-                        const sampler = new Tone.Sampler({urls: {A2: testBuf}}).toDestination();
-                        alert(testBuf.loaded);
-                        // const test = new Tone.Synth().toDestination();
-                        // test.triggerAttackRelease("C4", 0.5);
-                        // sampler.triggerAttackRelease("A2", 0.5);
+                        if (audioFiles.A2) {
+                            alert("A2: " + audioFiles.A2);
+                            const audio = new Audio(audioFiles.A2);
+                            audio.addEventListener('canplaythrough', () => {
+                                audio.play().catch((e) => alert("Playback error: " + e.message));
+                            });
+                            audio.addEventListener('error', (e) => {
+                                alert("Audio error: " + e.message);
+                            });
+
+                            const buffer = new Tone.ToneAudioBuffer(audioFiles.A2, () => {
+                                alert("ToneAudioBuffer loaded");
+                            }, (e) => {
+                                alert("ToneAudioBuffer error: " + e.message);
+                            });
+                        } else {
+                            alert("Error: A2 audio file not found.");
+                        }
+                        const sampler = new Tone.Sampler({
+                            urls: {
+                                A2: audioFiles.A2,
+                            },
+                            // baseUrl: "https://tonejs.github.io/audio/casio/",
+                            onload: () => {
+                                alert("Sampler loaded!");
+                                // sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+                            }
+                        }).toDestination();
+
 
                     } catch (e) {
                         alert("Error: " + e.message);
