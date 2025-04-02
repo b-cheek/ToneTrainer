@@ -1,32 +1,63 @@
 import { Asset } from 'expo-asset';
-import React, { forwardRef, useEffect, useState } from 'react';
+import * as FileSystem from 'expo-file-system';
+import React, { forwardRef, useState, useEffect } from 'react';
 import { WebView } from 'react-native-webview';
 
 const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) => {
 
     const soundScript = props.soundScript;
-
-    const [audioFiles, setAudioFiles] = useState<{ [key: string]: string }>({});
+    // const availableInstuments = ["bassoon", "cello", "clarinet", "contrabass", "flute", "french-horn", "piano", "saxophone", "trombone", "trumpet", "tuba", "violin"];
+    // const instrumentUris: Record<string, Record<string, string>> = {};
+    const [instrumentUris, setInstrumentUris] = useState<Record<string, Record<string, string>>>({});
 
     useEffect(() => {
-        const loadAssets = async () => {
-            const sampleFiles = {
-                A2: require('../assets/trimmedSamples/bassoon/A2.mp3'),
-            };
+        const loadAudio = async () => {
+            try {
+                // Load the asset
+                const assets = [
+                    Asset.fromModule(require('../assets/trimmedSamples/basson/A3.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/cello/A3.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/clarinet/As4.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/contrabass/A2.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/flute/A5.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/french-horn/A3.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/piano/A4.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/saxophone/A4.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/trombone/As2.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/trumpet/As4.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/tuba/As2.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/violin/A4.mp3')),
+                ];
 
-            const loadedFiles: { [key: string]: string } = {};
-            for (const [note, asset] of Object.entries(sampleFiles)) {
-                const loadedAsset = await Asset.loadAsync(asset);
-                loadedFiles[note] = loadedAsset[0].localUri || '';
+                for (const asset of assets) {
+                    const instrument = asset.uri?.split("/").pop()?.split(".")[0] ?? "unknown";
+                    const note = asset.uri?.split("/").pop()?.split(".")[1] ?? "unknown";
+
+                    await asset.downloadAsync(); // Ensure it's downloaded
+
+                    // Convert to Base64
+                    const base64 = await FileSystem.readAsStringAsync(asset.localUri!, {
+                        encoding: FileSystem.EncodingType.Base64,
+                    });
+
+                    // Create a data URI
+                    // instrumentUris[instrument] = { [note]: `data:audio/mp3;base64,${base64}` };
+                    setInstrumentUris((prev) => ({
+                        ...prev,
+                        [instrument]: {
+                            ...prev[instrument],
+                            [note]: `data:audio/mp3;base64,${base64}`,
+                        },
+                    }));
+                }
+                console.log("Instrument URIs:", instrumentUris);
+            } catch (error) {
+                console.error("Error loading audio:", error);
             }
-
-            setAudioFiles(loadedFiles);
         };
 
-        loadAssets();
+        loadAudio();
     }, []);
-
-    console.log('Audio files loaded:', audioFiles);
 
     return (
         <WebView
@@ -51,37 +82,23 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                     <script>
 
                     try {
-                        const audioFiles = ${JSON.stringify(audioFiles)};
-                        alert("Audio files loaded: " + JSON.stringify(audioFiles));
-                        if (audioFiles.A2) {
-                            alert("A2: " + audioFiles.A2);
-                            const audio = new Audio(audioFiles.A2);
-                            audio.addEventListener('canplaythrough', () => {
-                                audio.play().catch((e) => alert("Playback error: " + e.message));
-                            });
-                            audio.addEventListener('error', (e) => {
-                                alert("Audio error: " + e.message);
-                            });
-
-                            const buffer = new Tone.ToneAudioBuffer(audioFiles.A2, () => {
-                                alert("ToneAudioBuffer loaded");
-                            }, (e) => {
-                                alert("ToneAudioBuffer error: " + e.message);
-                            });
-                        } else {
-                            alert("Error: A2 audio file not found.");
-                        }
                         const sampler = new Tone.Sampler({
                             urls: {
-                                A2: audioFiles.A2,
+                                // A2: "",
                             },
-                            // baseUrl: "https://tonejs.github.io/audio/casio/",
                             onload: () => {
-                                alert("Sampler loaded!");
-                                // sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.5);
+                                sampler.triggerAttack("A2", 0.5);
                             }
                         }).toDestination();
 
+                        ${Object.entries(instrumentUris).map(([instrument, notes]) => `
+                            const ${instrument} = new Tone.Sampler({
+                                urls: ${JSON.stringify(notes)},
+                                onload: () => {
+                                    ${instrument}.triggerAttack("A3", 0.5);
+                                }
+                            }).toDestination();
+                        `).join("\n")}
 
                     } catch (e) {
                         alert("Error: " + e.message);
