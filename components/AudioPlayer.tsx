@@ -6,39 +6,59 @@ import { WebView } from 'react-native-webview';
 const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) => {
 
     const soundScript = props.soundScript;
-    // const availableInstuments = ["bassoon", "cello", "clarinet", "contrabass", "flute", "french-horn", "piano", "saxophone", "trombone", "trumpet", "tuba", "violin"];
-    // const instrumentUris: Record<string, Record<string, string>> = {};
     const [instrumentUris, setInstrumentUris] = useState<Record<string, Record<string, string>>>({});
+
+    const instrumentSamplersScript = 
+        Object.entries(instrumentUris).map(([instrument, uris]) => `
+            const ${instrument} = new Tone.Sampler({
+                urls: ${JSON.stringify(uris)},
+                onload: () => {
+                    ${instrument}.triggerAttack("A3", 0.5);
+                }
+            }).toDestination();
+        `).join("\n");
+
+    const samplerTest = `
+        const sampler = new Tone.Sampler({
+            urls: {
+                A3: "${instrumentUris['bassoon']?.['A3']}",     
+    `;
 
     useEffect(() => {
         const loadAudio = async () => {
             try {
                 // Load the asset
                 const assets = [
-                    Asset.fromModule(require('../assets/trimmedSamples/basson/A3.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/bassoon/A3.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/cello/A3.mp3')),
-                    Asset.fromModule(require('../assets/trimmedSamples/clarinet/As4.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/clarinet/D4.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/contrabass/A2.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/flute/A5.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/french-horn/A3.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/piano/A4.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/saxophone/A4.mp3')),
-                    Asset.fromModule(require('../assets/trimmedSamples/trombone/As2.mp3')),
-                    Asset.fromModule(require('../assets/trimmedSamples/trumpet/As4.mp3')),
-                    Asset.fromModule(require('../assets/trimmedSamples/tuba/As2.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/trombone/C3.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/trumpet/C4.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/tuba/F2.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/violin/A4.mp3')),
                 ];
 
                 for (const asset of assets) {
-                    const instrument = asset.uri?.split("/").pop()?.split(".")[0] ?? "unknown";
-                    const note = asset.uri?.split("/").pop()?.split(".")[1] ?? "unknown";
+                    // console.log(asset.uri);
+                    const uri = asset.uri;
+                    const note = uri.split("%2F").pop()?.split(".")[0] ?? "unknown";
+                    const instrument = uri.split("%2F")[uri.split("%2F").length - 2];
 
                     await asset.downloadAsync(); // Ensure it's downloaded
+                    // console.log(`${instrument} - ${note} downloaded`);
 
                     // Convert to Base64
                     const base64 = await FileSystem.readAsStringAsync(asset.localUri!, {
                         encoding: FileSystem.EncodingType.Base64,
                     });
+
+                    console.log("Instrument URIs:", Object.keys(instrumentUris));
+                    console.log(instrumentUris['contrabass']?.['A2']); // Debugging line to check if the contrabass A2 is loaded correctly
 
                     // Create a data URI
                     // instrumentUris[instrument] = { [note]: `data:audio/mp3;base64,${base64}` };
@@ -50,7 +70,6 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                         },
                     }));
                 }
-                console.log("Instrument URIs:", instrumentUris);
             } catch (error) {
                 console.error("Error loading audio:", error);
             }
@@ -76,6 +95,7 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                 true;
             `}
             onMessage={(event) => {}} // An onMessage event is required as well to inject the JavaScript code into the WebView.
+            // injectedJavaScript={samplerTest}
             source={{
                 html: `
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
@@ -83,23 +103,13 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
 
                     try {
                         const sampler = new Tone.Sampler({
-                            urls: {
-                                // A2: "",
-                            },
+                            urls: ${JSON.stringify(instrumentUris['bassoon'])},
                             onload: () => {
-                                sampler.triggerAttack("A2", 0.5);
-                            }
+                                console.log("Sampler loaded successfully!");
+                                sampler.triggerAttack("A3", 0.5); // Test the sampler by playing a note
+                            },
+                            baseUrl: "data:audio/mp3;base64,"
                         }).toDestination();
-
-                        ${Object.entries(instrumentUris).map(([instrument, notes]) => `
-                            const ${instrument} = new Tone.Sampler({
-                                urls: ${JSON.stringify(notes)},
-                                onload: () => {
-                                    ${instrument}.triggerAttack("A3", 0.5);
-                                }
-                            }).toDestination();
-                        `).join("\n")}
-
                     } catch (e) {
                         alert("Error: " + e.message);
                     }
