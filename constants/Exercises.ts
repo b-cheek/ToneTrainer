@@ -88,7 +88,7 @@ export const Exercises: Exercise[] = [
                 synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
             `).join("\n")}
         
-            clarinet.triggerAttackRelease(Tone.Frequency(${notes[0].midi}, "midi"), "2n"); // Play the first note with bassoon
+            bassoon.triggerAttackRelease(Tone.Frequency(${notes[0].midi}, "midi"), "2n"); // Play the first note with bassoon
         `,
         answerChoices: [
             'In Tune',

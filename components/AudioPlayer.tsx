@@ -72,8 +72,6 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                     `).slice(0,5).join("\n")
                 );
 
-                console.log("Sample script loaded:", sampleScript);
-
                 setUrisLoaded(true);
 
             } catch (error) {
@@ -107,7 +105,9 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
                     <script>
                     try {
+                        /*
                         ${sampleScript} // Load the instrument samples
+                        */
                     } catch (e) {
                         console.error("Error loading audio samples:", e);
                     }
