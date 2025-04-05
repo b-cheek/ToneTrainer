@@ -6,23 +6,9 @@ import { WebView } from 'react-native-webview';
 const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) => {
 
     const soundScript = props.soundScript;
-    const [instrumentUris, setInstrumentUris] = useState<Record<string, Record<string, string>>>({});
-
-    const instrumentSamplersScript = 
-        Object.entries(instrumentUris).map(([instrument, uris]) => `
-            const ${instrument} = new Tone.Sampler({
-                urls: ${JSON.stringify(uris)},
-                onload: () => {
-                    ${instrument}.triggerAttack("A3", 0.5);
-                }
-            }).toDestination();
-        `).join("\n");
-
-    const samplerTest = `
-        const sampler = new Tone.Sampler({
-            urls: {
-                A3: "${instrumentUris['bassoon']?.['A3']}",     
-    `;
+    const [ instrumentUris, setInstrumentUris ] = useState<Record<string, Record<string, string>>>({});
+    const [ urisLoaded, setUrisLoaded ] = useState(false);
+    const [ sampleScript , setSampleScript ] = useState<string>("");
 
     useEffect(() => {
         const loadAudio = async () => {
@@ -43,6 +29,8 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                     Asset.fromModule(require('../assets/trimmedSamples/violin/A4.mp3')),
                 ];
 
+                let curUris: Record<string, Record<string, string>> = {};
+
                 for (const asset of assets) {
                     // console.log(asset.uri);
                     const uri = asset.uri;
@@ -57,19 +45,37 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                         encoding: FileSystem.EncodingType.Base64,
                     });
 
-                    console.log("Instrument URIs:", Object.keys(instrumentUris));
-                    console.log(instrumentUris['contrabass']?.['A2']); // Debugging line to check if the contrabass A2 is loaded correctly
+                    // console.log("Instrument URIs:", Object.keys(instrumentUris));
 
                     // Create a data URI
                     // instrumentUris[instrument] = { [note]: `data:audio/mp3;base64,${base64}` };
-                    setInstrumentUris((prev) => ({
-                        ...prev,
-                        [instrument]: {
-                            ...prev[instrument],
-                            [note]: `data:audio/mp3;base64,${base64}`,
-                        },
-                    }));
+                    // setInstrumentUris((prev) => ({
+                    //     ...prev,
+                    //     [instrument]: {
+                    //         ...prev[instrument],
+                    //         [note]: base64,
+                    //     },
+                    // }));
+                    curUris[instrument] = {
+                        [note]: base64, // Store the base64 string directly
+                    }
                 }
+
+                setInstrumentUris(curUris);
+
+                setSampleScript(
+                    Object.entries(curUris).map(([instrument, uris]) => `
+                        ${instrument} = new Tone.Sampler({
+                            urls: ${JSON.stringify(uris)},
+                            baseUrl: "data:audio/mp3;base64,"
+                        }).toDestination();
+                    `).slice(0,5).join("\n")
+                );
+
+                console.log("Sample script loaded:", sampleScript);
+
+                setUrisLoaded(true);
+
             } catch (error) {
                 console.error("Error loading audio:", error);
             }
@@ -78,7 +84,7 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
         loadAudio();
     }, []);
 
-    return (
+    return urisLoaded ? (
         <WebView
             style={{ maxWidth: 0, maxHeight: 0 }}
             containerStyle={{ flex: 0 }}
@@ -86,6 +92,7 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
             ref={ref}
             //TODO: Make playback work when ringer on silent (iOS)
             webviewDebuggingEnabled={true}
+            javaScriptEnabled={true}
             // produce useful error messages
             injectedJavaScriptBeforeContentLoaded={`
                 window.onerror = function(message, sourcefile, lineno, colno, error) {
@@ -95,23 +102,14 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                 true;
             `}
             onMessage={(event) => {}} // An onMessage event is required as well to inject the JavaScript code into the WebView.
-            // injectedJavaScript={samplerTest}
             source={{
                 html: `
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
                     <script>
-
                     try {
-                        const sampler = new Tone.Sampler({
-                            urls: ${JSON.stringify(instrumentUris['bassoon'])},
-                            onload: () => {
-                                console.log("Sampler loaded successfully!");
-                                sampler.triggerAttack("A3", 0.5); // Test the sampler by playing a note
-                            },
-                            baseUrl: "data:audio/mp3;base64,"
-                        }).toDestination();
+                        ${sampleScript} // Load the instrument samples
                     } catch (e) {
-                        alert("Error: " + e.message);
+                        console.error("Error loading audio samples:", e);
                     }
 
                     function playSound() {
@@ -121,7 +119,7 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                     `,
             }}
         />
-    );
+    ) : null;
 });
 
 export default AudioPlayer;
