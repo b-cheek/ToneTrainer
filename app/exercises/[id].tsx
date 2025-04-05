@@ -4,6 +4,7 @@ import { useLocalSearchParams } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
 import { Exercises } from '@/constants/Exercises';
+import SegmentedControl from '@react-native-segmented-control/segmented-control';
 
 const Exercise = () => {
     
@@ -24,6 +25,7 @@ const Exercise = () => {
             return acc;
         }, {} as Record<string, number>);
         return {
+            instrumentIndex: 0, // Default to first instrument if not specified
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
@@ -70,6 +72,21 @@ const Exercise = () => {
             </View>
             <Text>Settings</Text>
             <View>
+                <SegmentedControl
+                    values={['Bassoon', 'Clarinet', 'Flute', 'Oboe', 'Trumpet']}
+                    selectedIndex={exerciseState.instrumentIndex || 0}
+                    onValueChange={(value) => {
+                        const index = ['Bassoon', 'Clarinet', 'Flute', 'Oboe', 'Trumpet'].indexOf(value);
+                        if (index !== -1) {
+                            setExerciseState((prevState) => ({
+                                ...prevState,
+                                instrumentIndex: index,
+                                audioDetails: exercise.generateNotes(prevState.inTune, prevState.sliderDifficulties), // Regenerate notes with new instrument
+                            }));
+                        }
+                    }}
+                    // style={{ marginVertical: 20 }}
+                />
                 {Object.keys(exercise.difficultyRanges).map((key) => (
                     <View key={key}>
                         <Text>{key}</Text>
