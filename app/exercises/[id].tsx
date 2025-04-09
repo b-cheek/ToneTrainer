@@ -4,6 +4,8 @@ import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
 import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
+import { Picker } from '@react-native-picker/picker';
+import { instrumentNames } from '@/constants/Values';
 import { globalStyles } from '@/constants/Styles';
 import Storage from 'expo-sqlite/kv-store';
 
@@ -27,6 +29,7 @@ export const Exercise = () => {
             return acc;
         }, {} as Record<string, number>);
         return {
+            instrument: "Synthesizer", // Default instrument, can be changed later
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
@@ -50,7 +53,6 @@ export const Exercise = () => {
         setExerciseState((prevState) => ({
             ...prevState, // Retain previous state (slider difficulties)
             inTune: inTune,
-            // audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
             audioDetails: exercise.generateNotes(inTune, exerciseState.sliderDifficulties),
             prevExerciseString: exerciseState.audioDetails.feedback,
         }));
@@ -87,6 +89,19 @@ export const Exercise = () => {
             </View>
             <Text>Settings</Text>
             <View>
+                <Picker
+                    selectedValue={exerciseState.instrument}
+                    onValueChange={(itemValue) => {
+                        setExerciseState((prevState) => ({
+                            ...prevState,
+                            instrument: itemValue as string,
+                        }));
+                    }}
+                >
+                    {instrumentNames.map((instrument) => (
+                        <Picker.Item key={instrument} label={instrument} value={instrument} color='black' />
+                    ))}
+                </Picker>
                 {Object.keys(exercise.difficultyRanges).map((key) => (
                     <View key={key}>
                         <Text>{key}</Text>

@@ -34,7 +34,14 @@
           "backgroundColor": "#ffffff"
         }
       ],
+<<<<<<< HEAD
+      [
+        "expo-asset",
+        {}
+      ]
+=======
       "expo-sqlite"
+>>>>>>> origin/master
     ],
     "experiments": {
       "typedRoutes": true
@@ -44,7 +51,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "985a9895-9753-4e39-8563-b567073f03ff"
+        "projectId": "da727633-9086-4db3-978a-e2b78fe3b6cf"
       }
     }
   }

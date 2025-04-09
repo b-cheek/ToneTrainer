@@ -11,6 +11,7 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string }>((props, ref) =>
             originWhitelist={['*']}
             ref={ref}
             webviewDebuggingEnabled={true}
+            javaScriptEnabled={true}
             // produce useful error messages
             injectedJavaScriptBeforeContentLoaded={`
                 window.onerror = function(message, sourcefile, lineno, colno, error) {

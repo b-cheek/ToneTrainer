@@ -213,3 +213,20 @@ export const chords = [
         tuning: []
     }
 ];
+
+
+export const instrumentNames = [
+    "Bassoon",
+    "Cello",
+    "Clarinet",
+    "Bass",
+    "Flute",
+    "French Horn",
+    "Piano",
+    "Saxophone",
+    "Synthesizer",
+    "Trombone",
+    "Trumpet",
+    "Tuba",
+    "Violin"
+]
