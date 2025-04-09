@@ -49,17 +49,6 @@ const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
                         encoding: FileSystem.EncodingType.Base64,
                     });
 
-                    // console.log("Instrument URIs:", Object.keys(instrumentUris));
-
-                    // Create a data URI
-                    // instrumentUris[instrument] = { [note]: `data:audio/mp3;base64,${base64}` };
-                    // setInstrumentUris((prev) => ({
-                    //     ...prev,
-                    //     [instrument]: {
-                    //         ...prev[instrument],
-                    //         [note]: base64,
-                    //     },
-                    // }));
                     curUris[instrument] = {
                         [note]: base64, // Store the base64 string directly
                     }

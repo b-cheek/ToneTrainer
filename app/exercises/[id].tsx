@@ -46,7 +46,6 @@ const Exercise = () => {
         setExerciseState((prevState) => ({
             ...prevState, // Retain previous state (slider difficulties)
             inTune: inTune,
-            // audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
             audioDetails: exercise.generateNotes(inTune, exerciseState.sliderDifficulties),
             prevExerciseString: exerciseState.audioDetails.feedback,
         }));
@@ -55,8 +54,6 @@ const Exercise = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text0}>{id}</Text>
-            
-            {/* <FontAwesome name="gear" size={24} color="black" /> */}
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
             <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes)} instrument={exerciseState.instrument} />
             <Text>Debug</Text>
