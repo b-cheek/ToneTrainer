@@ -4,6 +4,7 @@ import { useRef, useEffect } from 'react';
 import { View, Button } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AudioPlayer from './AudioPlayer';
+import React from 'react';
 
 const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
 

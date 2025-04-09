@@ -62,7 +62,7 @@ export const Exercise = () => {
         <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes) } />
+            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes)} instrument={exerciseState.instrument} />
             <Button
                 title="toggle debug"
                 onPress={() => {
