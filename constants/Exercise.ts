@@ -51,4 +51,6 @@ export const soundScript = (notes: Note[]) => `
         synths[${index}].detune.value = ${note.detune ?? 0};
         synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
     `).join("\n")}
+
+    true;
 `;

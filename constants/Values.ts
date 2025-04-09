@@ -214,19 +214,18 @@ export const chords = [
     }
 ];
 
-
 export const instrumentNames = [
-    "Bassoon",
-    "Cello",
-    "Clarinet",
-    "Bass",
-    "Flute",
-    "French Horn",
-    "Piano",
-    "Saxophone",
-    "Synthesizer",
-    "Trombone",
-    "Trumpet",
-    "Tuba",
-    "Violin"
-]
+    { display: "Bassoon", internal: "bassoon" },
+    { display: "Cello", internal: "cello" },
+    { display: "Clarinet", internal: "clarinet" },
+    { display: "Bass", internal: "contrabass" },
+    { display: "Flute", internal: "flute" },
+    { display: "French Horn", internal: "french-horn" },
+    { display: "Piano", internal: "piano" },
+    { display: "Saxophone", internal: "saxophone" },
+    { display: "Synthesizer", internal: "synthesizer" },
+    { display: "Trombone", internal: "trombone" },
+    { display: "Trumpet", internal: "trumpet" },
+    { display: "Tuba", internal: "tuba" },
+    { display: "Violin", internal: "violin" }
+];

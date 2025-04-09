@@ -29,7 +29,7 @@ export const Exercise = () => {
             return acc;
         }, {} as Record<string, number>);
         return {
-            instrument: "Synthesizer", // Default instrument, can be changed later
+            instrument: "synthesizer", // Default instrument, can be changed later
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
@@ -74,8 +74,7 @@ export const Exercise = () => {
             { debug && (
             <View>
                 <Text>Debug</Text>
-                <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
-                <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
+                <Text>Exercise state: {JSON.stringify(exerciseState)}</Text>
                 <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes)}</Text>
             </View>
             )}
@@ -98,8 +97,8 @@ export const Exercise = () => {
                         }));
                     }}
                 >
-                    {instrumentNames.map((instrument) => (
-                        <Picker.Item key={instrument} label={instrument} value={instrument} color='black' />
+                    {instrumentNames.map(({display, internal}) => (
+                        <Picker.Item key={internal} label={display} value={internal} color='black' />
                     ))}
                 </Picker>
                 {Object.keys(exercise.difficultyRanges).map((key) => (

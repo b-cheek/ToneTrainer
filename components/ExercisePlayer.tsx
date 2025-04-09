@@ -66,7 +66,7 @@ const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
     }, []);
 
     useEffect(() => {
-        if (props.instrument.toLowerCase() == 'synthesizer') {
+        if (props.instrument == 'synthesizer') {
             webview.current?.injectJavaScript(`
                 synthesizer = new Tone.Synth().toDestination();
                 true;
@@ -75,8 +75,8 @@ const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
         }
 
         webview.current?.injectJavaScript(`
-            ${props.instrument.toLowerCase()} = new Tone.Sampler({
-                urls: ${JSON.stringify(instrumentUris[props.instrument.toLowerCase()])},
+            ${props.instrument} = new Tone.Sampler({
+                urls: ${JSON.stringify(instrumentUris[props.instrument])},
                 baseUrl: "data:audio/mp3;base64,"
             }).toDestination();
             true;
