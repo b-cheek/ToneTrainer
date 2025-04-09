@@ -1,23 +1,26 @@
-import React, { useState } from 'react';
-import { Text, Button, StyleSheet, View } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useState } from 'react';
+import { Text, Button, StyleSheet, View, ScrollView } from 'react-native';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
-import { Exercises } from '@/constants/Exercises';
+import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
 import { Picker } from '@react-native-picker/picker';
 import { instrumentNames } from '@/constants/Values';
+import { globalStyles } from '@/constants/Styles';
+import Storage from 'expo-sqlite/kv-store';
 
-const Exercise = () => {
-    
-    const [exerciseNum, setExerciseNum] = useState(0);
-    const [correctNum, setCorrectNum] = useState(0);
-
+export const Exercise = () => {
+    const [debug, setDebug] = useState(false); // Debug mode to show additional information
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
-    const exercise = Exercises.find(ex => ex.title == id);
-    if (!exercise) {
+    const exercise = Exercises[id];
+    const serialized = Storage.getItemSync(id);
+    if (exercise === undefined || serialized === null) {
         return <Text>Exercise not found</Text>;
     }
+    const initialData: ExerciseData = JSON.parse(serialized);
+    const [exerciseNum, setExerciseNum] = useState(initialData.completed);
+    const [correctNum, setCorrectNum] = useState(initialData.correct);
 
     const [exerciseState, setExerciseState] = useState(() => {
         const inTune = Math.random() < 0.5;
@@ -34,12 +37,16 @@ const Exercise = () => {
         }
     });
 
-    const handleAnswer = (answer: string) => {
+    const handleAnswer = async (answer: string) => {
         // Debugging
         // alert(`inTune: ${exerciseState.inTune}, Correct Answer: ${exercise.getCorrectAnswer(exerciseState.inTune)}, Your Answer: ${answer}`);
-        setExerciseNum(exerciseNum + 1);
+        const newCompleted = exerciseNum + 1;
+        setExerciseNum(newCompleted);
+        await Storage.mergeItem(id, JSON.stringify({ completed: newCompleted }));
         if (answer === exercise.getCorrectAnswer(exerciseState.inTune)) {
-            setCorrectNum(correctNum + 1);
+            const newCorrect = correctNum + 1;
+            setCorrectNum(newCorrect);
+            await Storage.mergeItem(id, JSON.stringify({ correct: newCorrect }));
         }
         // Set up next exercise
         const inTune = Math.random() < 0.5;
@@ -52,14 +59,26 @@ const Exercise = () => {
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.text0}>{id}</Text>
+        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
+            <Stack.Screen options={{ title: exercise.title }}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes)} instrument={exerciseState.instrument} />
-            <Text>Debug</Text>
-            <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
-            <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
-            <Text>Sound Script: {exercise.soundScript(exerciseState.audioDetails.notes)}</Text>
+            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes) } />
+            <Button
+                title="toggle debug"
+                onPress={() => {
+                    // Toggle debug mode
+                    setDebug(!debug);
+                }}
+            />
+
+            { debug && (
+            <View>
+                <Text>Debug</Text>
+                <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
+                <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
+                <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes)}</Text>
+            </View>
+            )}
             <View style={styles.answersContainer}>
                 {exercise.answerChoices.map((choice, index) => (
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />
@@ -104,21 +123,11 @@ const Exercise = () => {
                     </View>
                 ))}
             </View>
-        </View>
+        </ScrollView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    text0: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 20,
-    },
     answersContainer: {
         flexDirection: 'row',
         alignItems: 'center',

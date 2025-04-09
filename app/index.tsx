@@ -1,36 +1,32 @@
-import React from 'react';
-import { Text, View, FlatList, Button, StyleSheet } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import ExerciseList from '@/components/ExerciseList';
-import { Exercises, ExerciseGroupings } from '@/constants/Exercises';
+import { Categories } from '@/constants/Exercises';
+import { Stack } from 'expo-router';
+import { globalStyles } from '@/constants/Styles';
 
 export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text0}>Exercises</Text>
-      <View style={styles.exerciseContainer}>
-        <ExerciseList title="Beginner" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Beginner)} />
-        <ExerciseList title="Intermediate" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Intermediate)} />
-        <ExerciseList title="Advanced" exercises={Exercises.filter(ex => ex.grouping==ExerciseGroupings.Advanced)} />
-      </View>
+    <View style={styles.parent}>
+      <Stack.Screen options={{ title: "Exercises" }}/>
+      <ScrollView contentContainerStyle={styles.exerciseContainer}>
+        {Object.entries(Categories).map(([category, exercises]) => (
+          <ExerciseList key={category} name={category} exercises={exercises} />
+        ))}
+        <View style={styles.bottomMargin} />
+      </ScrollView>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text0: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 20,
-    marginBottom: 20,
-  },
   exerciseContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 15
+    ...globalStyles.column,
+    alignItems: 'center'
   },
+  parent: {
+    height: '100%'
+  },
+  bottomMargin: {
+    height: 20
+  }
 });

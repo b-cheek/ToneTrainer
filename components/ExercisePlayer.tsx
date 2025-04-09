@@ -1,7 +1,7 @@
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
-import React, { useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View, Button } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AudioPlayer from './AudioPlayer';
 
@@ -84,8 +84,7 @@ const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
     , [props.instrument]);
 
     return (
-        <View style={styles.playerContainer}>
-            <Text>ExercisePlayer</Text>
+        <View>
             <Button title="Play" onPress={() => {
                 webview.current?.injectJavaScript(playSoundInjection);
             }} />
@@ -93,23 +92,5 @@ const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    container: {
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    playerContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 15,
-        marginBottom: 20,
-        backgroundColor: 'lightgray',
-        padding: 10,
-        borderWidth: 1,
-        borderColor: 'black',
-    },
-});
 
 export default ExercisePlayer;

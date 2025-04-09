@@ -34,10 +34,14 @@
           "backgroundColor": "#ffffff"
         }
       ],
+<<<<<<< HEAD
       [
         "expo-asset",
         {}
       ]
+=======
+      "expo-sqlite"
+>>>>>>> origin/master
     ],
     "experiments": {
       "typedRoutes": true

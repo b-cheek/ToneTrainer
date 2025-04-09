@@ -1,8 +1,7 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import { WebView } from 'react-native-webview';
 
-const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) => {
-
+const AudioPlayer = forwardRef<WebView, { soundScript: string }>((props, ref) => {
     const soundScript = props.soundScript;
 
     return (
@@ -11,7 +10,6 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
             containerStyle={{ flex: 0 }}
             originWhitelist={['*']}
             ref={ref}
-            //TODO: Make playback work when ringer on silent (iOS)
             webviewDebuggingEnabled={true}
             javaScriptEnabled={true}
             // produce useful error messages
@@ -28,10 +26,10 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string} >((props, ref) =>
                     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
                     <script>
                     function playSound() {
-                        ${soundScript}
+                    ${soundScript}
                     }
                     </script>
-                    `,
+                `,
             }}
         />
     );
