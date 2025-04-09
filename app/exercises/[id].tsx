@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { Text, Button, StyleSheet, View, ScrollView } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
-import Slider from '@react-native-community/slider';
+import ExerciseSettings from '@/components/ExerciseSettings';
 import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
-import { Picker } from '@react-native-picker/picker';
-import { instrumentNames } from '@/constants/Values';
 import { globalStyles } from '@/constants/Styles';
 import Storage from 'expo-sqlite/kv-store';
 
 export const Exercise = () => {
-    const [debug, setDebug] = useState(false); // Debug mode to show additional information
+
+    // Routing and initialization
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises[id];
@@ -19,9 +18,13 @@ export const Exercise = () => {
         return <Text>Exercise not found</Text>;
     }
     const initialData: ExerciseData = JSON.parse(serialized);
+
+    // non-exercise related state
     const [exerciseNum, setExerciseNum] = useState(initialData.completed);
     const [correctNum, setCorrectNum] = useState(initialData.correct);
+    const [debug, setDebug] = useState(false); // Debug mode to show additional information
 
+    // All exercise related state controlled by single exerciseState object
     const [exerciseState, setExerciseState] = useState(() => {
         const inTune = Math.random() < 0.5;
         const sliderDifficulties = Object.entries(exercise.difficultyRanges).reduce((acc, [key, value]) => {
@@ -48,6 +51,7 @@ export const Exercise = () => {
             setCorrectNum(newCorrect);
             await Storage.mergeItem(id, JSON.stringify({ correct: newCorrect }));
         }
+
         // Set up next exercise
         const inTune = Math.random() < 0.5;
         setExerciseState((prevState) => ({
@@ -70,7 +74,6 @@ export const Exercise = () => {
                     setDebug(!debug);
                 }}
             />
-
             { debug && (
             <View>
                 <Text>Debug</Text>
@@ -87,43 +90,22 @@ export const Exercise = () => {
                 {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
             <Text>Settings</Text>
-            <View>
-                <Picker
-                    selectedValue={exerciseState.instrument}
-                    onValueChange={(itemValue) => {
-                        setExerciseState((prevState) => ({
-                            ...prevState,
-                            instrument: itemValue as string,
-                        }));
-                    }}
-                >
-                    {instrumentNames.map(({display, internal}) => (
-                        <Picker.Item key={internal} label={display} value={internal} color='black' />
-                    ))}
-                </Picker>
-                {Object.keys(exercise.difficultyRanges).map((key) => (
-                    <View key={key}>
-                        <Text>{key}</Text>
-                        <Slider
-                            style={{ width: 200, height: 40 }}
-                            minimumValue={0}
-                            maximumValue={1}
-                            onValueChange={(value) => {
-                                // Update the difficulty level
-                                setExerciseState((prevState) => ({
-                                    ...prevState,
-                                    sliderDifficulties: {
-                                        ...prevState.sliderDifficulties,
-                                        // NOTE: rounding is used for values like range and size that must be integers, 
-                                        // this may need to be refactored based on key for new difficulty adjustments
-                                        [key]: Math.round(value*exercise.difficultyRanges[key][1] + (1-value)*exercise.difficultyRanges[key][0]),
-                                    },
-                                }));
-                            }}
-                        />
-                    </View>
-                ))}
-            </View>
+            <ExerciseSettings
+                instrument={exerciseState.instrument}
+                difficultyRanges={exercise.difficultyRanges}
+                onInstrumentChange={(instrument) =>
+                    setExerciseState((prev) => ({ ...prev, instrument }))
+                }
+                onDifficultyChange={(key, value) =>
+                    setExerciseState((prev) => ({
+                    ...prev,
+                    sliderDifficulties: {
+                        ...prev.sliderDifficulties,
+                        [key]: value,
+                    },
+                    }))
+                }
+        />
         </ScrollView>
     );
 }

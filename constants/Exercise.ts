@@ -35,7 +35,7 @@ export type Exercise = {
     answerChoices: string[],
     getCorrectAnswer: (inTune: Boolean) => string,
     generateFeedback: (args: Record<string, any>) => string,
-    difficultyRanges: Record<string, number[]>
+    difficultyRanges: Record<string, [number, number]>,
 }
 
 export type ExerciseData = {
