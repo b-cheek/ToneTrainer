@@ -4,7 +4,8 @@ import { useLocalSearchParams } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import Slider from '@react-native-community/slider';
 import { Exercises } from '@/constants/Exercises';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
+import { Picker } from '@react-native-picker/picker';
+import { instrumentNames } from '@/constants/Values';
 
 const Exercise = () => {
     
@@ -25,7 +26,7 @@ const Exercise = () => {
             return acc;
         }, {} as Record<string, number>);
         return {
-            instrumentIndex: 0, // Default to first instrument if not specified
+            instrument: "Synthesizer", // Default instrument, can be changed later
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
@@ -57,7 +58,7 @@ const Exercise = () => {
             
             {/* <FontAwesome name="gear" size={24} color="black" /> */}
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes) } />
+            <ExercisePlayer soundScript={exercise.soundScript(exerciseState.audioDetails.notes)} instrument={exerciseState.instrument} />
             <Text>Debug</Text>
             <Text>Intune: {exerciseState.inTune ? "in tune" : "out of tune"}</Text>
             <Text>Difficulties: {JSON.stringify(exerciseState.sliderDifficulties)}</Text>
@@ -72,21 +73,19 @@ const Exercise = () => {
             </View>
             <Text>Settings</Text>
             <View>
-                <SegmentedControl
-                    values={['Bassoon', 'Clarinet', 'Flute', 'Oboe', 'Trumpet']}
-                    selectedIndex={exerciseState.instrumentIndex || 0}
-                    onValueChange={(value) => {
-                        const index = ['Bassoon', 'Clarinet', 'Flute', 'Oboe', 'Trumpet'].indexOf(value);
-                        if (index !== -1) {
-                            setExerciseState((prevState) => ({
-                                ...prevState,
-                                instrumentIndex: index,
-                                audioDetails: exercise.generateNotes(prevState.inTune, prevState.sliderDifficulties), // Regenerate notes with new instrument
-                            }));
-                        }
+                <Picker
+                    selectedValue={exerciseState.instrument}
+                    onValueChange={(itemValue) => {
+                        setExerciseState((prevState) => ({
+                            ...prevState,
+                            instrument: itemValue as string,
+                        }));
                     }}
-                    // style={{ marginVertical: 20 }}
-                />
+                >
+                    {instrumentNames.map((instrument) => (
+                        <Picker.Item key={instrument} label={instrument} value={instrument} color='black' />
+                    ))}
+                </Picker>
                 {Object.keys(exercise.difficultyRanges).map((key) => (
                     <View key={key}>
                         <Text>{key}</Text>

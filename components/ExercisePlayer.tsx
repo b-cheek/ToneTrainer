@@ -5,7 +5,7 @@ import { StyleSheet, View, Text, Button } from 'react-native';
 import { WebView } from 'react-native-webview';
 import AudioPlayer from './AudioPlayer';
 
-const ExercisePlayer = (props: {soundScript: string}) => {
+const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
 
     //TODO: Note use of tonejs offline to save sound to a buffer passed to this player instead of directly playing it?
     const webview = useRef<WebView>(null);
@@ -75,27 +75,30 @@ const ExercisePlayer = (props: {soundScript: string}) => {
         loadAudio();
     }, []);
 
-    const loadInstrument = async () => {
+    useEffect(() => {
+        if (props.instrument.toLowerCase() == 'synthesizer') {
+            webview.current?.injectJavaScript(`
+                synthesizer = new Tone.Synth().toDestination();
+                true;
+            `);
+            return;
+        }
+
         webview.current?.injectJavaScript(`
-            bassoon = new Tone.Sampler({
-                urls: {
-                    "A3": "${instrumentUris['bassoon']?.['A3'] || ''}",
-                },
+            ${props.instrument.toLowerCase()} = new Tone.Sampler({
+                urls: ${JSON.stringify(instrumentUris[props.instrument.toLowerCase()])},
                 baseUrl: "data:audio/mp3;base64,"
             }).toDestination();
+            true;
         `);
-    };
+    }
+    , [props.instrument]);
 
     return (
         <View style={styles.playerContainer}>
             <Text>ExercisePlayer</Text>
             <Button title="Play" onPress={() => {
                 webview.current?.injectJavaScript(playSoundInjection);
-            }} />
-            <Button title="Instrument" onPress={() => {
-                if (webview.current) {
-                    loadInstrument();
-                }
             }} />
             <AudioPlayer ref={webview} soundScript={props.soundScript} />
         </View>

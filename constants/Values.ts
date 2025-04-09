@@ -18,3 +18,19 @@ export const intervalDistances = [ // Used for feedback string, currently interv
     "P8", "m9", "M9", "m10", "M10", "P11", "TT", "P12", "m13", "M13", "m14", "M14",
     "P15", "m16", "M16", "m17", "M17", "P18", "TT", "P19", "m20", "M20", "m21", "M21"
 ]
+
+export const instrumentNames = [
+    "Bassoon",
+    "Cello",
+    "Clarinet",
+    "Bass",
+    "Flute",
+    "French Horn",
+    "Piano",
+    "Saxophone",
+    "Synthesizer",
+    "Trombone",
+    "Trumpet",
+    "Tuba",
+    "Violin"
+]

@@ -82,13 +82,15 @@ export const Exercises: Exercise[] = [
         soundScript: (notes: Note[]) => `
             const synths = [];
 
+            /*
             ${notes.map((note, index) => `
                 synths[${index}] = new Tone.Synth().toDestination();
                 synths[${index}].detune.value = ${note.detune ?? 0};
                 synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
             `).join("\n")}
+            */
         
-            bassoon.triggerAttackRelease(Tone.Frequency(${notes[0].midi}, "midi"), "2n"); // Play the first note with bassoon
+            tuba.triggerAttackRelease(Tone.Frequency(${notes[0].midi}, "midi"), "2n");
         `,
         answerChoices: [
             'In Tune',
