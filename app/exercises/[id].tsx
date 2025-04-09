@@ -114,7 +114,9 @@ export const Exercise = () => {
                                     ...prevState,
                                     sliderDifficulties: {
                                         ...prevState.sliderDifficulties,
-                                        [key]: value*exercise.difficultyRanges[key][1] + (1-value)*exercise.difficultyRanges[key][0],
+                                        // NOTE: rounding is used for values like range and size that must be integers, 
+                                        // this may need to be refactored based on key for new difficulty adjustments
+                                        [key]: Math.round(value*exercise.difficultyRanges[key][1] + (1-value)*exercise.difficultyRanges[key][0]),
                                     },
                                 }));
                             }}

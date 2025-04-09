@@ -25,7 +25,7 @@ const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
                     Asset.fromModule(require('../assets/trimmedSamples/clarinet/D4.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/contrabass/A2.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/flute/A5.mp3')),
-                    Asset.fromModule(require('../assets/trimmedSamples/french-horn/A3.mp3')),
+                    Asset.fromModule(require('../assets/trimmedSamples/french_horn/A3.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/piano/A4.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/saxophone/A4.mp3')),
                     Asset.fromModule(require('../assets/trimmedSamples/trombone/C3.mp3')),
@@ -71,6 +71,11 @@ const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
                 synthesizer = new Tone.Synth().toDestination();
                 true;
             `);
+            return;
+        }
+
+        if (!instrumentUris[props.instrument]) {
+            console.warn(`No audio URIs found for instrument: ${props.instrument}`);
             return;
         }
 

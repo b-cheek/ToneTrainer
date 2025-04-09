@@ -220,7 +220,7 @@ export const instrumentNames = [
     { display: "Clarinet", internal: "clarinet" },
     { display: "Bass", internal: "contrabass" },
     { display: "Flute", internal: "flute" },
-    { display: "French Horn", internal: "french-horn" },
+    { display: "French Horn", internal: "french_horn" },
     { display: "Piano", internal: "piano" },
     { display: "Saxophone", internal: "saxophone" },
     { display: "Synthesizer", internal: "synthesizer" },
