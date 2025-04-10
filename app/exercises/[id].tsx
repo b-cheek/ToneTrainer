@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Text, Button, StyleSheet, View, ScrollView } from 'react-native';
+import { Text, Button, StyleSheet, View, ScrollView, Modal } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import ExerciseSettings from '@/components/ExerciseSettings';
 import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
 import Storage from 'expo-sqlite/kv-store';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export const Exercise = () => {
 
@@ -23,6 +24,11 @@ export const Exercise = () => {
     const [exerciseNum, setExerciseNum] = useState(initialData.completed);
     const [correctNum, setCorrectNum] = useState(initialData.correct);
     const [debug, setDebug] = useState(false); // Debug mode to show additional information
+    const [showSettings, setShowSettings] = useState(false);
+    const [sliderValues, setSliderValues] = useState<Record<string, number>>({}); 
+
+    // sliderValues is considered non-exercise related since it is purely visual
+    // for the sliders to modify difficulty, not representative of the difficulty itself
 
     // All exercise related state controlled by single exerciseState object
     const [exerciseState, setExerciseState] = useState(() => {
@@ -65,6 +71,7 @@ export const Exercise = () => {
     return (
         <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
+            <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
             <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes)} instrument={exerciseState.instrument} />
             <Button
@@ -89,23 +96,39 @@ export const Exercise = () => {
             <View>
                 {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
-            <Text>Settings</Text>
-            <ExerciseSettings
-                instrument={exerciseState.instrument}
-                difficultyRanges={exercise.difficultyRanges}
-                onInstrumentChange={(instrument) =>
-                    setExerciseState((prev) => ({ ...prev, instrument }))
-                }
-                onDifficultyChange={(key, value) =>
-                    setExerciseState((prev) => ({
-                    ...prev,
-                    sliderDifficulties: {
-                        ...prev.sliderDifficulties,
-                        [key]: value,
-                    },
-                    }))
-                }
-        />
+            <Modal
+                animationType="slide"
+                visible={showSettings}
+                transparent={true}
+                onRequestClose={() => setShowSettings(false)}
+            >
+                <View style={styles.modalContent}>
+                    <FontAwesome.Button 
+                        name="close" 
+                        size={24} 
+                        color="black" 
+                        onPress={() => setShowSettings(false)} 
+                    />
+                    <ExerciseSettings
+                        instrument={exerciseState.instrument}
+                        difficultyRanges={exercise.difficultyRanges}
+                        sliderValues={sliderValues}
+                        onInstrumentChange={(instrument) =>
+                            setExerciseState((prev) => ({ ...prev, instrument }))
+                        }
+                        onDifficultyChange={(key, value) =>
+                            setExerciseState((prev) => ({
+                            ...prev,
+                            sliderDifficulties: {
+                                ...prev.sliderDifficulties,
+                                [key]: value,
+                            },
+                            }))
+                        }
+                        onSliderChange={(key, value) => setSliderValues((prev) => ({ ...prev, [key]: value }))}
+                    />
+                </View>
+            </Modal>
         </ScrollView>
     );
 }
@@ -121,6 +144,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'black',
     },
+
+    modalContent: {
+        flex: 1,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        justifyContent: 'center',
+    }
 });
 
 export default Exercise;
