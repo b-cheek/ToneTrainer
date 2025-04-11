@@ -38,7 +38,7 @@ export const Exercise = () => {
             return acc;
         }, {} as Record<string, number>);
         return {
-            instrument: "synthesizer", // Default instrument, can be changed later
+            activeInstruments: ["synthesizer"],
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
@@ -73,7 +73,7 @@ export const Exercise = () => {
             <Stack.Screen options={{ title: exercise.title }}/>
             <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes)} instrument={exerciseState.instrument} />
+            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}} />
             <Button
                 title="toggle debug"
                 onPress={() => {
@@ -85,7 +85,7 @@ export const Exercise = () => {
             <View>
                 <Text>Debug</Text>
                 <Text>Exercise state: {JSON.stringify(exerciseState)}</Text>
-                <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes)}</Text>
+                <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}</Text>
             </View>
             )}
             <View style={styles.answersContainer}>
@@ -110,7 +110,7 @@ export const Exercise = () => {
                         onPress={() => setShowSettings(false)} 
                     />
                     <ExerciseSettings
-                        instrument={exerciseState.instrument}
+                        activeInstruments={exerciseState.activeInstruments}
                         difficultyRanges={exercise.difficultyRanges}
                         sliderValues={sliderValues}
                         onInstrumentChange={(instrument) =>

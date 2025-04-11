@@ -43,13 +43,10 @@ export type ExerciseData = {
     correct: number
 }
 
-export const soundScript = (notes: Note[]) => `
-    const synths = [];
+export const soundScript = (notes: Note[], instruments: string[]) => `
 
     ${notes.map((note, index) => `
-        synths[${index}] = new Tone.Synth().toDestination();
-        synths[${index}].detune.value = ${note.detune ?? 0};
-        synths[${index}].triggerAttackRelease(Tone.Frequency(${note.midi}, "midi"), "2n");
+        instruments[${index}].triggerAttackRelease(Tone.Frequency(Tone.mtof(${note.midi}) * Math.pow(2, ${note.detune} / 1200);), "2n");
     `).join("\n")}
 
     true;

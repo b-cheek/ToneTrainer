@@ -6,7 +6,7 @@ import { WebView } from 'react-native-webview';
 import AudioPlayer from './AudioPlayer';
 import React from 'react';
 
-const ExercisePlayer = (props: {soundScript: string, instrument: string}) => {
+const ExercisePlayer = (props: {soundScript: string}) => {
 
     //TODO: Note use of tonejs offline to save sound to a buffer passed to this player instead of directly playing it?
     const webview = useRef<WebView>(null);

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Picker } from '@react-native-picker/picker';
 import { instrumentNames } from '@/constants/Values';
+import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatlist'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const ExerciseSettings = ({
   instrument,
@@ -19,14 +21,29 @@ const ExerciseSettings = ({
   onDifficultyChange: (key: string, value: number) => void;
   onSliderChange: (key: string, value: number) => void;
 }) => {
-    Object.entries(difficultyRanges).reduce((acc, [key, value]) => {
-      acc[key] = value[0];
-      return acc;
-    }
-    , {} as Record<string, number>);
   return (
     <View>
       <Text>Instrument</Text>
+      <GestureHandlerRootView>
+        <DraggableFlatList
+          data={instrumentNames}
+          renderItem={({ item, drag, isActive }) => (
+            <ScaleDecorator>
+              <TouchableOpacity
+                onLongPress={drag}
+                disabled={isActive}
+                style={{ padding: 10, backgroundColor: isActive ? 'lightgray' : 'white' }}
+              >
+                <Text>{item.display}</Text>
+              </TouchableOpacity>
+            </ScaleDecorator>
+          )}
+          keyExtractor={(item) => item.internal}
+          onDragEnd={({ data }) => {
+            
+          }}
+        />
+      </GestureHandlerRootView>
       <Picker
         selectedValue={instrument}
         onValueChange={onInstrumentChange}
