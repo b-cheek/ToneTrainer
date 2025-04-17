@@ -43,11 +43,14 @@ export type ExerciseData = {
     correct: number
 }
 
+//TODO: create duplicate samplers/synths for duplicate active instruments
 export const soundScript = (notes: Note[], instruments: string[]) => `
-
+    
     ${notes.map((note, index) => `
-        instruments[${index}].triggerAttackRelease(Tone.Frequency(Tone.mtof(${note.midi}) * Math.pow(2, ${note.detune} / 1200);), "2n");
+        ${instruments[Math.min(index, instruments.length-1)]}.triggerAttackRelease(Tone.Frequency(Tone.mtof(${note.midi}) * ${Math.pow(2, Math.abs(note.detune || 0) / 1200)}), "2n");
     `).join("\n")}
+
+    //synthesizer.triggerAttackRelease(Tone.Frequency(Tone.mtof(60) * 1.0022610), "2n"); // Example note to ensure synthesizer is initialized
 
     true;
 `;

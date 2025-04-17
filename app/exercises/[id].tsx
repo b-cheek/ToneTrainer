@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Text, Button, StyleSheet, View, ScrollView, Modal } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import ExerciseSettings from '@/components/ExerciseSettings';
 import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
+import { createInstrumentUris, injectInstrumentSampler } from '@/utils/InstrumentSampler';
 import Storage from 'expo-sqlite/kv-store';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import WebView from 'react-native-webview';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
 export const Exercise = () => {
 
@@ -38,13 +41,36 @@ export const Exercise = () => {
             return acc;
         }, {} as Record<string, number>);
         return {
-            activeInstruments: ["synthesizer"],
+            activeInstruments: ["synthesizer"] as ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[],
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
             prevExerciseString: "",
         }
     });
+
+    const [instrumentUris, setInstrumentUris] = useState<Record<string, Record<string, string>> | null>(null);
+    const webviewRef = useRef<WebView | null>(null);
+
+    useEffect(() => {
+        const loadAudio = async () => {
+            const uris = await createInstrumentUris();
+            setInstrumentUris(uris);
+        };
+        loadAudio();
+    }, []);
+
+    const handleWebViewLoad = () => {
+        injectInstruments();
+    };
+
+    const injectInstruments = () => {
+        for (const instrument of exerciseState.activeInstruments) {
+            if (instrumentUris) {
+                injectInstrumentSampler(webviewRef, instrument, instrumentUris);
+            }
+        }
+    };
 
     const handleAnswer = async (answer: string) => {
         // Debugging
@@ -73,7 +99,11 @@ export const Exercise = () => {
             <Stack.Screen options={{ title: exercise.title }}/>
             <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}} />
+            <ExercisePlayer 
+                ref={webviewRef}
+                soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}
+                onLoadEnd={handleWebViewLoad} // Call injectInstruments when WebView is loaded
+            />
             <Button
                 title="toggle debug"
                 onPress={() => {
@@ -102,32 +132,40 @@ export const Exercise = () => {
                 transparent={true}
                 onRequestClose={() => setShowSettings(false)}
             >
-                <View style={styles.modalContent}>
-                    <FontAwesome.Button 
-                        name="close" 
-                        size={24} 
-                        color="black" 
-                        onPress={() => setShowSettings(false)} 
-                    />
-                    <ExerciseSettings
-                        activeInstruments={exerciseState.activeInstruments}
-                        difficultyRanges={exercise.difficultyRanges}
-                        sliderValues={sliderValues}
-                        onInstrumentChange={(instrument) =>
-                            setExerciseState((prev) => ({ ...prev, instrument }))
-                        }
-                        onDifficultyChange={(key, value) =>
-                            setExerciseState((prev) => ({
-                            ...prev,
-                            sliderDifficulties: {
-                                ...prev.sliderDifficulties,
-                                [key]: value,
-                            },
-                            }))
-                        }
-                        onSliderChange={(key, value) => setSliderValues((prev) => ({ ...prev, [key]: value }))}
-                    />
-                </View>
+                <SafeAreaProvider>
+                    <SafeAreaView style={styles.modalContent}>
+                        <FontAwesome.Button 
+                            name="close" 
+                            size={24} 
+                            color="black" 
+                            onPress={() => setShowSettings(false)} 
+                        />
+                        <ExerciseSettings
+                            activeInstruments={exerciseState.activeInstruments}
+                            difficultyRanges={exercise.difficultyRanges}
+                            sliderValues={sliderValues}
+                            onInstrumentsChange={(instruments) => {
+                                setExerciseState((prev) => ({ ...prev, activeInstruments: instruments as typeof prev.activeInstruments }));
+                                // TODO: eliminate redundant injections
+                                for (const instrument of instruments) {
+                                    if (instrumentUris) {
+                                        injectInstrumentSampler(webviewRef, instrument, instrumentUris);
+                                    }
+                                }
+                            }}
+                            onDifficultyChange={(key, value) =>
+                                setExerciseState((prev) => ({
+                                ...prev,
+                                sliderDifficulties: {
+                                    ...prev.sliderDifficulties,
+                                    [key]: value,
+                                },
+                                }))
+                            }
+                            onSliderChange={(key, value) => setSliderValues((prev) => ({ ...prev, [key]: value }))}
+                        />
+                    </SafeAreaView>
+                </SafeAreaProvider>
             </Modal>
         </ScrollView>
     );
@@ -150,6 +188,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: 20,
     }
 });
 
