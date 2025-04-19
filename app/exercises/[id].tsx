@@ -29,6 +29,7 @@ export const Exercise = () => {
     const [debug, setDebug] = useState(false); // Debug mode to show additional information
     const [showSettings, setShowSettings] = useState(false);
     const [sliderValues, setSliderValues] = useState<Record<string, number>>({}); 
+    const [injectedInstruments, setInjectedInstruments] = useState<string[]>([]);
 
     // sliderValues is considered non-exercise related since it is purely visual
     // for the sliders to modify difficulty, not representative of the difficulty itself
@@ -66,7 +67,8 @@ export const Exercise = () => {
 
     const injectInstruments = () => {
         for (const instrument of exerciseState.activeInstruments) {
-            if (instrumentUris) {
+            if (instrumentUris && !injectedInstruments.includes(instrument)) {
+                setInjectedInstruments((prev) => [...prev, instrument]);
                 injectInstrumentSampler(webviewRef, instrument, instrumentUris);
             }
         }
@@ -148,7 +150,8 @@ export const Exercise = () => {
                                 setExerciseState((prev) => ({ ...prev, activeInstruments: instruments as typeof prev.activeInstruments }));
                                 // TODO: eliminate redundant injections
                                 for (const instrument of instruments) {
-                                    if (instrumentUris) {
+                                    if (instrumentUris && !injectedInstruments.includes(instrument)) {
+                                        setInjectedInstruments((prev) => [...prev, instrument]);
                                         injectInstrumentSampler(webviewRef, instrument, instrumentUris);
                                     }
                                 }
