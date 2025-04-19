@@ -1,40 +1,73 @@
 import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Picker } from '@react-native-picker/picker';
-import { instrumentNames } from '@/constants/Values';
+import { instrumentDisplayNames } from '@/constants/Values';
+import DraggableFlatList, { OpacityDecorator, ScaleDecorator } from 'react-native-draggable-flatlist'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { FontAwesome } from '@expo/vector-icons';
 
 const ExerciseSettings = ({
-  instrument,
+  activeInstruments,
   difficultyRanges,
   sliderValues,
-  onInstrumentChange,
+  onInstrumentsChange,
   onDifficultyChange,
   onSliderChange
 }: {
-  instrument: string;
+  activeInstruments: ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[];
   difficultyRanges: Record<string, [number, number]>;
   sliderValues: Record<string, number>;
-  onInstrumentChange: (instrument: string) => void;
+  onInstrumentsChange: (instruments: string[]) => void;
   onDifficultyChange: (key: string, value: number) => void;
   onSliderChange: (key: string, value: number) => void;
 }) => {
-    Object.entries(difficultyRanges).reduce((acc, [key, value]) => {
-      acc[key] = value[0];
-      return acc;
-    }
-    , {} as Record<string, number>);
+  const [pickerValue, setPickerValue] = useState<keyof typeof instrumentDisplayNames>('piano'); // Default to piano
   return (
     <View>
       <Text>Instrument</Text>
+      <GestureHandlerRootView style={{ flex: 1, padding: 20, maxHeight: 300 }}>
+        <DraggableFlatList
+          // TODO: limit number of active instruments appropriately per the exercise
+          // inverted={true} // For some reason, this cause all the text and buttons to be upside down
+          data={activeInstruments.toReversed()}
+          renderItem={({ item, drag, isActive }: { item: keyof typeof instrumentDisplayNames; drag: () => void; isActive: boolean }) => (
+            <TouchableOpacity
+              onLongPress={drag}
+              disabled={isActive}
+              style={{ padding: 10, backgroundColor: isActive ? 'lightgray' : 'white', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+            >
+              <Text>{instrumentDisplayNames[item]}</Text>
+              <FontAwesome.Button
+                name="trash-o"
+                size={24}
+                color="black"
+                onPress={() => {
+                  // TODO: this deletes all insturments of same type, not just the one
+                  const newInstruments = activeInstruments.filter((i) => i !== item);
+                  onInstrumentsChange(newInstruments);
+                }}
+              />
+            </TouchableOpacity>
+          )}
+          keyExtractor={(item, index) => item + index.toString()}
+          // TODO: fix flicker of old ordering after dragend
+          onDragEnd={({ data }) => onInstrumentsChange(data.toReversed())} // Reverse back to original order after drag
+        />
+      </GestureHandlerRootView>
+      <Text>Active instruments: {activeInstruments}</Text>
       <Picker
-        selectedValue={instrument}
-        onValueChange={onInstrumentChange}
+        selectedValue={pickerValue}
+        onValueChange={(itemValue) => {
+          // Note that duplicate instruments are allowed
+          setPickerValue(itemValue as keyof typeof instrumentDisplayNames);
+          onInstrumentsChange([...activeInstruments, itemValue]);
+        }}
       >
-        {instrumentNames.map(({ display, internal }) => (
+        {Object.keys(instrumentDisplayNames).map((internal) => (
           <Picker.Item
             key={internal}
-            label={display}
+            label={instrumentDisplayNames[internal as keyof typeof instrumentDisplayNames]}
             value={internal}
             color="black"
           />
@@ -43,6 +76,7 @@ const ExerciseSettings = ({
 
       {Object.keys(difficultyRanges).map((key) => {
         // Take another look at this if added another inverted slider
+        // TODO: set new exercise when difficulties are changed?
         const inverted = difficultyRanges[key][0] > difficultyRanges[key][1];
         const [min, max] = (inverted) ? difficultyRanges[key].toReversed() : difficultyRanges[key];
         return (

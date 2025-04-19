@@ -214,18 +214,18 @@ export const chords = [
     }
 ];
 
-export const instrumentNames = [
-    { display: "Bassoon", internal: "bassoon" },
-    { display: "Cello", internal: "cello" },
-    { display: "Clarinet", internal: "clarinet" },
-    { display: "Bass", internal: "contrabass" },
-    { display: "Flute", internal: "flute" },
-    { display: "French Horn", internal: "french_horn" },
-    { display: "Piano", internal: "piano" },
-    { display: "Saxophone", internal: "saxophone" },
-    { display: "Synthesizer", internal: "synthesizer" },
-    { display: "Trombone", internal: "trombone" },
-    { display: "Trumpet", internal: "trumpet" },
-    { display: "Tuba", internal: "tuba" },
-    { display: "Violin", internal: "violin" }
-];
+export const instrumentDisplayNames = {
+    bassoon: "Bassoon",
+    cello: "Cello",
+    clarinet: "Clarinet",
+    contrabass: "Bass",
+    flute: "Flute",
+    french_horn: "French Horn",
+    piano: "Piano",
+    saxophone: "Saxophone",
+    synthesizer: "Synthesizer",
+    trombone: "Trombone",
+    trumpet: "Trumpet",
+    tuba: "Tuba",
+    violin: "Violin"
+};
