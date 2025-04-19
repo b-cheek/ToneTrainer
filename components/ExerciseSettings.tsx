@@ -22,7 +22,7 @@ const ExerciseSettings = ({
   onDifficultyChange: (key: string, value: number) => void;
   onSliderChange: (key: string, value: number) => void;
 }) => {
-  const [pickerValue, setPickerValue] = useState<keyof typeof instrumentDisplayNames>('synthesizer'); // Default to Synthesizer
+  const [pickerValue, setPickerValue] = useState<keyof typeof instrumentDisplayNames>('piano'); // Default to piano
   return (
     <View>
       <Text>Instrument</Text>
@@ -43,6 +43,7 @@ const ExerciseSettings = ({
                 size={24}
                 color="black"
                 onPress={() => {
+                  // TODO: this deletes all insturments of same type, not just the one
                   const newInstruments = activeInstruments.filter((i) => i !== item);
                   onInstrumentsChange(newInstruments);
                 }}
@@ -75,6 +76,7 @@ const ExerciseSettings = ({
 
       {Object.keys(difficultyRanges).map((key) => {
         // Take another look at this if added another inverted slider
+        // TODO: set new exercise when difficulties are changed?
         const inverted = difficultyRanges[key][0] > difficultyRanges[key][1];
         const [min, max] = (inverted) ? difficultyRanges[key].toReversed() : difficultyRanges[key];
         return (

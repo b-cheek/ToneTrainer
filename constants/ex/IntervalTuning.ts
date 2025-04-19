@@ -39,8 +39,6 @@ export const IntervalTuning: Exercise = {
             // feedback: this.generateFeedback(inTune, centsOutOfTune * Math.sign(note1 - note0))
             feedback: this.generateFeedback({centsOutOfTune, note0, note1})
             // centsOutOfTune is positive if interval is too wide, negative if too narrow
-            // TODO: Refactor to simply return the computed feedback string instead of just the cents out of tune
-            // Which will need adustment to account for intervals greater than an octave
         };
     },
     answerChoices: [
