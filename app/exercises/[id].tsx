@@ -45,7 +45,7 @@ export const Exercise = () => {
             return acc;
         }, {} as Record<string, number>);
         return {
-            activeInstruments: ["piano"] as ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[],
+            activeInstruments: ["piano"],
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             tuningSystem: tuningSystem,
@@ -61,6 +61,7 @@ export const Exercise = () => {
         const loadAudio = async () => {
             const uris = await createInstrumentUris();
             setInstrumentUris(uris);
+            handleWebViewLoad();
         };
         loadAudio();
     }, []);

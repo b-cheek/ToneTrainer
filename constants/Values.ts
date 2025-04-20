@@ -285,22 +285,6 @@ export const chords = [
     }
 ];
 
-export const instrumentDisplayNames = {
-    bassoon: "Bassoon",
-    cello: "Cello",
-    clarinet: "Clarinet",
-    contrabass: "Bass",
-    flute: "Flute",
-    french_horn: "French Horn",
-    piano: "Piano",
-    saxophone: "Saxophone",
-    synthesizer: "Synthesizer",
-    trombone: "Trombone",
-    trumpet: "Trumpet",
-    tuba: "Tuba",
-    violin: "Violin"
-};
-
 export const midiToAbc = [
     'C,,,,,', '_D,,,,,', 'D,,,,,', '_E,,,,,', 'E,,,,,', 'F,,,,,', '_G,,,,,', 'G,,,,,', '_A,,,,,', 'A,,,,,', '_B,,,,,', 'B,,,,,',
     'C,,,,', '_D,,,,', 'D,,,,', '_E,,,,', 'E,,,,', 'F,,,,', '_G,,,,', 'G,,,,', '_A,,,,', 'A,,,,', '_B,,,,', 'B,,,,',
