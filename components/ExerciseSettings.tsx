@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Picker } from '@react-native-picker/picker';
 import { instrumentDisplayNames } from '@/constants/Values';
-import DraggableFlatList, { OpacityDecorator, ScaleDecorator } from 'react-native-draggable-flatlist'
+import DraggableFlatList from 'react-native-draggable-flatlist'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
 
