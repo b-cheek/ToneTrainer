@@ -16,7 +16,7 @@ export const ChordTuning: Exercise = {
 
         const validChords = chords.filter(chord => chord.shape.length + 1 <= complexityDifficulty)
         const chord = validChords[getRndInt(0, validChords.length - 1)]
-        const chordCenter = 60 - Math.floor(chord.shape[chord.shape.length - 1] / 2);
+        const chordCenter = 64 - Math.floor(chord.shape[chord.shape.length - 1] / 2);
 
         let notes = [
             {
@@ -72,6 +72,6 @@ export const ChordTuning: Exercise = {
         outOfTune: [30, 1],
         size: [11, 35],
         complexity: [3, 7], // Number of notes in chord
-        range: [0, 44] 
+        range: [0, 63] 
     },
 }

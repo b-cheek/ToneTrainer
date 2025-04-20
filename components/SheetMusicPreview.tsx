@@ -36,7 +36,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: Constants.statusBarHeight,
     backgroundColor: "#fff",
-    minHeight: 200,
+    borderColor: "black",
+    borderWidth: 1,
+    minHeight: 420,
     minWidth: 200,
   },
 });

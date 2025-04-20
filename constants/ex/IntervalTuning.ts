@@ -14,8 +14,8 @@ export const IntervalTuning: Exercise = {
             outOfTune: outOfTuneDifficulty 
         } = difficulties;
 
-        // 60 is middle C
-        let note0 = getRndInt(60 - rangeDifficulty, 60 + rangeDifficulty);
+        // 64 is E4, middle of midi range
+        let note0 = getRndInt(64 - rangeDifficulty, 64 + rangeDifficulty);
         let note1 = note0 + getRndInt(-sizeDifficulty, sizeDifficulty);
         let note1Detune = 0;
         note1Detune += justIntonationAdjustments[modulo(note1-note0, 12)]; 
@@ -60,6 +60,6 @@ export const IntervalTuning: Exercise = {
         outOfTune: [30, 1], // Note that a unison played 1 cent out of tune will "beat" at 1 Hz
         size: [11, 35], // 11 is up to maj7, 35 is 3 octaves
         // 0 range makes one of the notes always middle C
-        range: [0, 44] // 44 in either direction approximates the complete range of a piano
+        range: [0, 63] // range fills complete midi range
     }
 }
