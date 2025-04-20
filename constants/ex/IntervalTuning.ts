@@ -1,6 +1,7 @@
 import { Exercise } from "../Exercise"
 import { justIntonationAdjustments, intervalDistances } from "../Values"
-import { ExerciseCategories, ExerciseDifficulties, getRndInt, getRndSign, modulo, Note } from "../Exercise"
+import { ExerciseCategories, ExerciseDifficulties } from "../Exercise"
+import { getRndInt, getRndSign, modulo } from "@/utils/Math"
 
 export const IntervalTuning: Exercise = {
     title: "Interval Tuning",
