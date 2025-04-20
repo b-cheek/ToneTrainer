@@ -11,7 +11,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SheetMusicPreview from '@/components/SheetMusicPreview';
-import { midiToAbc } from '@/constants/Values';
+import { midiToAbc, tuningSystems } from '@/constants/Values';
 
 export const Exercise = () => {
 
@@ -39,6 +39,7 @@ export const Exercise = () => {
     // All exercise related state controlled by single exerciseState object
     const [exerciseState, setExerciseState] = useState(() => {
         const inTune = Math.random() < 0.5;
+        const tuningSystem = tuningSystems[Math.floor(Math.random() * tuningSystems.length)];
         const sliderDifficulties = Object.entries(exercise.difficultyRanges).reduce((acc, [key, value]) => {
             acc[key] = value[0];
             return acc;
@@ -47,7 +48,8 @@ export const Exercise = () => {
             activeInstruments: ["piano"] as ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[],
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
-            audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
+            tuningSystem: tuningSystem,
+            audioDetails: exercise.generateNotes(inTune, tuningSystem, sliderDifficulties),
             prevExerciseString: "",
         }
     });
@@ -86,7 +88,8 @@ export const Exercise = () => {
         const newCompleted = exerciseNum + 1;
         setExerciseNum(newCompleted);
         await Storage.mergeItem(id, JSON.stringify({ completed: newCompleted }));
-        if (answer === exercise.getCorrectAnswer(exerciseState.inTune)) {
+        if (answer === (exerciseState.inTune ? "In Tune" : "Out of Tune")
+        || answer === exerciseState.tuningSystem) {
             const newCorrect = correctNum + 1;
             setCorrectNum(newCorrect);
             await Storage.mergeItem(id, JSON.stringify({ correct: newCorrect }));
@@ -94,10 +97,12 @@ export const Exercise = () => {
 
         // Set up next exercise
         const inTune = Math.random() < 0.5;
+        const tuningSystem = tuningSystems[Math.floor(Math.random() * tuningSystems.length)];
         setExerciseState((prevState) => ({
             ...prevState, // Retain previous state (slider difficulties)
             inTune: inTune,
-            audioDetails: exercise.generateNotes(inTune, exerciseState.sliderDifficulties),
+            tuningSystem: tuningSystem,
+            audioDetails: exercise.generateNotes(inTune, tuningSystem, exerciseState.sliderDifficulties),
             prevExerciseString: exerciseState.audioDetails.feedback,
         }));
     }
@@ -136,6 +141,7 @@ export const Exercise = () => {
                 {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
             <SheetMusicPreview
+                // TODO: make this toggleable in exercise settings
                 abcString={generateAbcString(exerciseState.audioDetails.notes)}
             />
             <Modal
@@ -186,7 +192,6 @@ export const Exercise = () => {
 
 const styles = StyleSheet.create({
     answersContainer: {
-        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 15,

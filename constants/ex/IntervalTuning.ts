@@ -6,7 +6,7 @@ export const IntervalTuning: Exercise = {
     title: "Interval Tuning",
     category: ExerciseCategories.Intervals,
     difficulty: ExerciseDifficulties.Beginner,
-    generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
+    generateNotes: function (inTune: Boolean, tuningSystem: string, difficulties: { [key: string]: number }) {
 
         const { 
             range: rangeDifficulty, 
@@ -45,9 +45,6 @@ export const IntervalTuning: Exercise = {
         'In Tune',
         'Out of Tune',
     ],
-    getCorrectAnswer: (inTune: Boolean) => {
-        return inTune ? 'In Tune' : 'Out of Tune';
-    },
     generateFeedback: (args: Record<string, any>) => {
         const { centsOutOfTune, note0, note1 } = args;
         // Note different calculation than tuningAdjustments

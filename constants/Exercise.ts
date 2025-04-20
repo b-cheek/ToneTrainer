@@ -31,9 +31,8 @@ export type Exercise = {
     title: string,
     category: ExerciseCategories,
     difficulty: ExerciseDifficulties,
-    generateNotes: (inTune: Boolean, difficulties: {[key: string]: number }) => { notes: Note[], feedback: string },
+    generateNotes: (inTune: Boolean, tuningSystem: string, difficulties: {[key: string]: number }) => { notes: Note[], feedback: string },
     answerChoices: string[],
-    getCorrectAnswer: (inTune: Boolean) => string,
     generateFeedback: (args: Record<string, any>) => string,
     difficultyRanges: Record<string, [number, number]>,
 }

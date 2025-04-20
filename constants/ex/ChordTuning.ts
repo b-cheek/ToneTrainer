@@ -6,7 +6,7 @@ export const ChordTuning: Exercise = {
     title: "Chord Tuning",
     category: ExerciseCategories.Chords,
     difficulty: ExerciseDifficulties.Intermediate,
-    generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
+    generateNotes: function (inTune: Boolean, tuningSystem: string, difficulties: { [key: string]: number }) {
         const { 
             range: rangeDifficulty, 
             size: sizeDifficulty, // to be implemented, change octaves of certain notes / inversions?
@@ -56,9 +56,6 @@ export const ChordTuning: Exercise = {
         'In Tune',
         'Out of Tune',
     ],
-    getCorrectAnswer: (inTune, ...notes: number[]) => {
-        return inTune ? 'In Tune' : 'Out of Tune';
-    },
     generateFeedback: (args: Record<string, any>) => {
         const { detuneDegree, centsOutOfTune, title } = args;
 

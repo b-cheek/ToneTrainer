@@ -5,7 +5,8 @@ export * from "./Exercise"
 
 export const Exercises: Record<string, Exercise> = {
     "interval-tuning": ExerciseModules.IntervalTuning,
-    "chord-tuning": ExerciseModules.ChordTuning
+    "chord-tuning": ExerciseModules.ChordTuning,
+    "tuning-system-id": ExerciseModules.TuningSystemId,
 }
 
 export const Categories: Record<ExerciseCategories, (Exercise & { id: string })[]> = Object.entries(Exercises).reduce(
