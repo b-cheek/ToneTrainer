@@ -9,5 +9,5 @@ Storage.multiGet(Object.keys(Exercises)).then(async (db) => {
 });
 
 export default function RootLayout() {
-  return <Stack screenOptions={{ headerTitleAlign: "center" }} />;
+  return <Stack screenOptions={{ title: "", headerTitleAlign: "center" }} />;
 }
