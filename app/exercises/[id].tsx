@@ -10,6 +10,8 @@ import Storage from 'expo-sqlite/kv-store';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import SheetMusicPreview from '@/components/SheetMusicPreview';
+import { midiToAbc } from '@/constants/Values';
 
 export const Exercise = () => {
 
@@ -74,6 +76,11 @@ export const Exercise = () => {
         }
     };
 
+    const generateAbcString = (notes: { midi: number, detune?: number }[]) => {
+        return `X: 1\\nL:1/4\\n[${notes.map(note => midiToAbc[note.midi]).join("")}]`;
+        // return "X:1\\nK:D\\nDD AA|BBA2|\\n";
+    }
+
     const handleAnswer = async (answer: string) => {
         // Debugging
         // alert(`inTune: ${exerciseState.inTune}, Correct Answer: ${exercise.getCorrectAnswer(exerciseState.inTune)}, Your Answer: ${answer}`);
@@ -118,6 +125,7 @@ export const Exercise = () => {
                 <Text>Debug</Text>
                 <Text>Exercise state: {JSON.stringify(exerciseState)}</Text>
                 <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}</Text>
+                <Text>ABC String: {generateAbcString(exerciseState.audioDetails.notes)} </Text>
             </View>
             )}
             <View style={styles.answersContainer}>
@@ -128,6 +136,9 @@ export const Exercise = () => {
             <View>
                 {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
+            <SheetMusicPreview
+                abcString={generateAbcString(exerciseState.audioDetails.notes)}
+            />
             <Modal
                 animationType="slide"
                 visible={showSettings}
