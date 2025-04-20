@@ -64,12 +64,11 @@ export const Exercise = () => {
     }, []);
 
     const handleWebViewLoad = () => {
-        injectInstruments();
-    };
-
-    const injectInstruments = () => {
         for (const instrument of exerciseState.activeInstruments) {
-            if (instrumentUris && !injectedInstruments.includes(instrument)) {
+            // Note that you have to re-inject the instrument sampler every time the WebView is loaded
+            // this could be more efficient by keeping the same webview loaded (TODO)
+            // but this is not a priority for now
+            if (instrumentUris) {
                 setInjectedInstruments((prev) => [...prev, instrument]);
                 injectInstrumentSampler(webviewRef, instrument, instrumentUris);
             }
@@ -159,8 +158,8 @@ export const Exercise = () => {
                             sliderValues={sliderValues}
                             onInstrumentsChange={(instruments) => {
                                 setExerciseState((prev) => ({ ...prev, activeInstruments: instruments as typeof prev.activeInstruments }));
-                                // TODO: eliminate redundant injections
                                 for (const instrument of instruments) {
+                                    // Eliminate redundant injections while changing settings
                                     if (instrumentUris && !injectedInstruments.includes(instrument)) {
                                         setInjectedInstruments((prev) => [...prev, instrument]);
                                         injectInstrumentSampler(webviewRef, instrument, instrumentUris);
