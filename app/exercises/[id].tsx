@@ -61,6 +61,7 @@ export const Exercise = () => {
         const loadAudio = async () => {
             const uris = await createInstrumentUris();
             setInstrumentUris(uris);
+            handleWebViewLoad();
         };
         loadAudio();
     }, []);
