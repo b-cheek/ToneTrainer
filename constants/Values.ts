@@ -1,3 +1,13 @@
+export const tuningSystems = [
+    "Equal Temperament",
+    "Just Intonation",
+    "Harmonic Just Intonation",
+    "Pythagorean Tuning",
+    "Quarter-Comma Meantone Tuning",
+    "Werckmeister III Tuning"
+]
+
+// TODO: these should be refactored into a single object, don't plan on it though
 export const justIntonationAdjustments = [
     0,
     11.7,
@@ -12,6 +22,67 @@ export const justIntonationAdjustments = [
     -3.91,
     -11.7,
 ] // Note mirrored after TT inverting intervals
+
+// Note that this is too similar to just intonation and only is applicable for higher complexities (TODO)
+export const harmonicJustAdjustments = [
+    0,
+    11.7,
+    3.91,
+    15.6,
+    -13.7,
+    -1.95,
+    -17.5,
+    1.95,
+    13.7,
+    -15.6,
+    -31.2,
+    -11.7
+]
+
+export const pythagoreanAdjustments = [
+    0,
+    -9.77,
+    3.91,
+    -5.86,
+    7.82,
+    -1.95,
+    11.7,
+    1.95,
+    -7.82,
+    5.86,
+    -3.91,
+    9.77
+]
+
+export const quarterCommaMeantoneAdjustments = [
+    0,
+    -24,
+    -6.8,
+    10.3,
+    -13.7,
+    3.4,
+    -20.5,
+    -3.2,
+    -27.4,
+    -10.3,
+    6.8,
+    -17.1
+]
+
+export const werckmeisterIIIAdjustments = [
+    0,
+    -9.77,
+    -7.82,
+    -5.86,
+    -9.77,
+    -1.95,
+    -11.7,
+    -3.91,
+    -7.82,
+    -5.86,
+    -3.91,
+    -7.82
+]
 
 export const intervalDistances = [ // Used for feedback string, currently intervals up to 3 octaves
     "P1", "m2", "M2", "m3", "M3", "P4", "TT", "P5", "m6", "M6", "m7", "M7",
@@ -213,3 +284,19 @@ export const chords = [
         tuning: []
     }
 ];
+
+export const midiToAbc = [
+    'C,,,,,', '_D,,,,,', 'D,,,,,', '_E,,,,,', 'E,,,,,', 'F,,,,,', '_G,,,,,', 'G,,,,,', '_A,,,,,', 'A,,,,,', '_B,,,,,', 'B,,,,,',
+    'C,,,,', '_D,,,,', 'D,,,,', '_E,,,,', 'E,,,,', 'F,,,,', '_G,,,,', 'G,,,,', '_A,,,,', 'A,,,,', '_B,,,,', 'B,,,,',
+    'C,,,', '_D,,,', 'D,,,', '_E,,,', 'E,,,', 'F,,,', '_G,,,', 'G,,,', '_A,,,', 'A,,,', '_B,,,', 'B,,,',
+    'C,,', '_D,,', 'D,,', '_E,,', 'E,,', 'F,,', '_G,,', 'G,,', '_A,,', 'A,,', '_B,,', 'B,,',
+    'C,', '_D,', 'D,', '_E,', 'E,', 'F,', '_G,', 'G,', '_A,', 'A,', '_B,', 'B,',
+    'C', '_D', 'D', '_E', 'E', 'F', '_G', 'G', '_A', 'A', '_B', 'B',
+    'c', '_d', 'd', '_e', 'e', 'f', '_g', 'g', '_a', 'a', '_b', 'b',
+    "c'", "_d'", "d'", "_e'", "e'", "f'", "_g'", "g'", "_a'", "a'", "_b'", "b'",
+    "c''", "_d''", "d''", "_e''", "e''", "f''", "_g''", "g''", "_a''", "a''", "_b''", "b''",
+    "c'''", "_d'''", "d'''", "_e'''", "e'''", "f'''", "_g'''", "g'''", "_a'''", "a'''", "_b'''", "b'''",
+    "c''''", "_d''''", "d''''", "_e''''", "e''''", "f''''", "_g''''", "g''''"
+]
+
+// Note midi range is 0-127 C-1 to G9

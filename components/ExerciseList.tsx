@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
   parent: {
     flexGrow: 1,
     flexShrink: 1,
+    gap: 10,
     width: '80%'
   },
   exercise: {

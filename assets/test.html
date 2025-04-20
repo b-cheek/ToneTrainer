@@ -6,12 +6,12 @@
     <title>Document</title>
 </head>
 <body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.40/Tone.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/abcjs@6.4.4/dist/abcjs-basic-min.min.js"></script>
+    <div id="abcjs-container"></div>
     <script>
-        let testBuf = new Tone.Buffer("./trimmedSamples/bassoon/A2.mp3", function(){alert("successful load")}, function(e){alert("failed load: " + e)});
-        const sampler = new Tone.Sampler({urls: {A2: testBuf}}).toDestination();
-        alert(testBuf.loaded);
+        const ABCJS = window.ABCJS;
+        const abcString = "X:1\nT:Example\nK:Bb\nBcde|\n";
+        const visualObj = ABCJS.renderAbc("abcjs-container", abcString, { responsive: "resize" });
     </script>
-    <button onclick="playSound()">Play</button>
 </body>
 </html>

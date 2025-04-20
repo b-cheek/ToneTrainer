@@ -7,7 +7,7 @@ export const ChordTuning: Exercise = {
     title: "Chord Tuning",
     category: ExerciseCategories.Chords,
     difficulty: ExerciseDifficulties.Intermediate,
-    generateNotes: function (inTune: Boolean, difficulties: { [key: string]: number }) {
+    generateNotes: function (inTune: Boolean, tuningSystem: string, difficulties: { [key: string]: number }) {
         const { 
             range: rangeDifficulty, 
             size: sizeDifficulty, // to be implemented, change octaves of certain notes / inversions?
@@ -17,7 +17,7 @@ export const ChordTuning: Exercise = {
 
         const validChords = chords.filter(chord => chord.shape.length + 1 <= complexityDifficulty)
         const chord = validChords[getRndInt(0, validChords.length - 1)]
-        const chordCenter = 60 - Math.floor(chord.shape[chord.shape.length - 1] / 2);
+        const chordCenter = 64 - Math.floor(chord.shape[chord.shape.length - 1] / 2);
 
         let notes = [
             {
@@ -57,9 +57,6 @@ export const ChordTuning: Exercise = {
         'In Tune',
         'Out of Tune',
     ],
-    getCorrectAnswer: (inTune, ...notes: number[]) => {
-        return inTune ? 'In Tune' : 'Out of Tune';
-    },
     generateFeedback: (args: Record<string, any>) => {
         const { detuneDegree, centsOutOfTune, title } = args;
 
@@ -73,6 +70,6 @@ export const ChordTuning: Exercise = {
         outOfTune: [30, 1],
         size: [11, 35],
         complexity: [3, 7], // Number of notes in chord
-        range: [0, 44] 
+        range: [0, 63] 
     },
 }

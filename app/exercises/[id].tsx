@@ -10,6 +10,8 @@ import Storage from 'expo-sqlite/kv-store';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import SheetMusicPreview from '@/components/SheetMusicPreview';
+import { midiToAbc, tuningSystems } from '@/constants/Values';
 
 export const Exercise = () => {
 
@@ -37,6 +39,7 @@ export const Exercise = () => {
     // All exercise related state controlled by single exerciseState object
     const [exerciseState, setExerciseState] = useState(() => {
         const inTune = Math.random() < 0.5;
+        const tuningSystem = tuningSystems[Math.floor(Math.random() * tuningSystems.length)];
         const sliderDifficulties = Object.entries(exercise.difficultyRanges).reduce((acc, [key, value]) => {
             acc[key] = value[0];
             return acc;
@@ -45,7 +48,8 @@ export const Exercise = () => {
             activeInstruments: ["piano"] as ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[],
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
-            audioDetails: exercise.generateNotes(inTune, sliderDifficulties),
+            tuningSystem: tuningSystem,
+            audioDetails: exercise.generateNotes(inTune, tuningSystem, sliderDifficulties),
             prevExerciseString: "",
         }
     });
@@ -62,17 +66,21 @@ export const Exercise = () => {
     }, []);
 
     const handleWebViewLoad = () => {
-        injectInstruments();
-    };
-
-    const injectInstruments = () => {
         for (const instrument of exerciseState.activeInstruments) {
-            if (instrumentUris && !injectedInstruments.includes(instrument)) {
+            // Note that you have to re-inject the instrument sampler every time the WebView is loaded
+            // this could be more efficient by keeping the same webview loaded (TODO)
+            // but this is not a priority for now
+            if (instrumentUris) {
                 setInjectedInstruments((prev) => [...prev, instrument]);
                 injectInstrumentSampler(webviewRef, instrument, instrumentUris);
             }
         }
     };
+
+    const generateAbcString = (notes: { midi: number, detune?: number }[]) => {
+        return `X: 1\\nL:1/4\\n[${notes.map(note => midiToAbc[note.midi]).join("")}]`;
+        // return "X:1\\nK:D\\nDD AA|BBA2|\\n";
+    }
 
     const handleAnswer = async (answer: string) => {
         // Debugging
@@ -80,7 +88,8 @@ export const Exercise = () => {
         const newCompleted = exerciseNum + 1;
         setExerciseNum(newCompleted);
         await Storage.mergeItem(id, JSON.stringify({ completed: newCompleted }));
-        if (answer === exercise.getCorrectAnswer(exerciseState.inTune)) {
+        if (answer === (exerciseState.inTune ? "In Tune" : "Out of Tune")
+        || answer === exerciseState.tuningSystem) {
             const newCorrect = correctNum + 1;
             setCorrectNum(newCorrect);
             await Storage.mergeItem(id, JSON.stringify({ correct: newCorrect }));
@@ -88,10 +97,12 @@ export const Exercise = () => {
 
         // Set up next exercise
         const inTune = Math.random() < 0.5;
+        const tuningSystem = tuningSystems[Math.floor(Math.random() * tuningSystems.length)];
         setExerciseState((prevState) => ({
             ...prevState, // Retain previous state (slider difficulties)
             inTune: inTune,
-            audioDetails: exercise.generateNotes(inTune, exerciseState.sliderDifficulties),
+            tuningSystem: tuningSystem,
+            audioDetails: exercise.generateNotes(inTune, tuningSystem, exerciseState.sliderDifficulties),
             prevExerciseString: exerciseState.audioDetails.feedback,
         }));
     }
@@ -118,6 +129,7 @@ export const Exercise = () => {
                 <Text>Debug</Text>
                 <Text>Exercise state: {JSON.stringify(exerciseState)}</Text>
                 <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}</Text>
+                <Text>ABC String: {generateAbcString(exerciseState.audioDetails.notes)} </Text>
             </View>
             )}
             <View style={styles.answersContainer}>
@@ -128,6 +140,10 @@ export const Exercise = () => {
             <View>
                 {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
+            <SheetMusicPreview
+                // TODO: make this toggleable in exercise settings
+                abcString={generateAbcString(exerciseState.audioDetails.notes)}
+            />
             <Modal
                 animationType="slide"
                 visible={showSettings}
@@ -148,8 +164,8 @@ export const Exercise = () => {
                             sliderValues={sliderValues}
                             onInstrumentsChange={(instruments) => {
                                 setExerciseState((prev) => ({ ...prev, activeInstruments: instruments as typeof prev.activeInstruments }));
-                                // TODO: eliminate redundant injections
                                 for (const instrument of instruments) {
+                                    // Eliminate redundant injections while changing settings
                                     if (instrumentUris && !injectedInstruments.includes(instrument)) {
                                         setInjectedInstruments((prev) => [...prev, instrument]);
                                         injectInstrumentSampler(webviewRef, instrument, instrumentUris);
@@ -176,7 +192,6 @@ export const Exercise = () => {
 
 const styles = StyleSheet.create({
     answersContainer: {
-        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 15,
