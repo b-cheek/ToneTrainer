@@ -4,14 +4,14 @@ import { router } from 'expo-router';
 import { globalStyles } from '@/constants/Styles';
 import { ExerciseDifficulties } from '@/constants/Exercises';
 import DifficultyText from '@/components/DifficultyText';
-import { DatabaseContext } from '@/components/DatabaseProvider';
+import { GlobalsContext } from '@/components/GlobalsProvider';
 import { useIsFocused } from '@react-navigation/native';
 
 const ExerciseList = (props: {
   name: string,
   exercises: { id: string, title: string, difficulty: ExerciseDifficulties }[]
 }) => {
-  const database = useContext(DatabaseContext);
+  const globals = useContext(GlobalsContext);
   // Something refuses to re-render this component when the context changes even when the dispatch obviously goes through.
   // Merely including this focus hook is enough to force a re-render upon navigating back to the homepage.
   const _ = useIsFocused();
@@ -29,7 +29,7 @@ const ExerciseList = (props: {
           <Text>{item.title}</Text>
           <View style={styles.difficultyAndCompletion}>
             <DifficultyText difficulty={item.difficulty}/>
-            <Text>{database.exercises[item.id].correct}/{database.exercises[item.id].completed} correct</Text>
+            <Text>{globals.db.exercises[item.id].correct}/{globals.db.exercises[item.id].completed} correct</Text>
           </View>
         </Pressable>
       ))}

@@ -5,21 +5,21 @@ import ExercisePlayer from '@/components/ExercisePlayer';
 import ExerciseSettings from '@/components/ExerciseSettings';
 import { soundScript, Exercises } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
-import { createInstrumentUris, injectInstrumentSampler } from '@/utils/InstrumentSampler';
+import { injectInstrumentSampler } from '@/utils/InstrumentSampler';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SheetMusicPreview from '@/components/SheetMusicPreview';
 import { midiToAbc, tuningSystems } from '@/constants/Values';
-import { updateExercise, DatabaseContext, DatabaseDispatchContext } from '@/components/DatabaseProvider';
+import { updateExercise, GlobalsContext, GlobalsDispatchContext } from '@/components/GlobalsProvider';
 
 export const Exercise = () => {
     // Routing and initialization
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises[id];
-    const database = useContext(DatabaseContext);
-    const dispatch = useContext(DatabaseDispatchContext);
+    const globals = useContext(GlobalsContext);
+    const dispatch = useContext(GlobalsDispatchContext);
     if (exercise === undefined) {
         return <Text>Exercise not found</Text>;
     }
@@ -53,33 +53,20 @@ export const Exercise = () => {
         }
     });
 
-    const [instrumentUris, setInstrumentUris] = useState<Record<string, Record<string, string>> | null>(null);
-    const [instrumentUrisSet, setInstrumentUrisSet] = useState<boolean>(false);
     const [webviewLoaded, setWebviewLoaded] = useState<boolean>(false);
     const webviewRef = useRef<WebView | null>(null);
 
     useEffect(() => {
-        const loadAudio = async () => {
-            const uris = await createInstrumentUris();
-            setInstrumentUris(uris);
-            setInstrumentUrisSet(true);
-        };
-        loadAudio();
-    }, []);
-
-    useEffect(() => {
-        if (instrumentUrisSet && webviewLoaded) {
+        if (webviewLoaded) {
             for (const instrument of exerciseState.activeInstruments) {
                 // Note that you have to re-inject the instrument sampler every time the WebView is loaded
                 // this could be more efficient by keeping the same webview loaded (TODO)
                 // but this is not a priority for now
-                if (instrumentUris) {
-                    setInjectedInstruments((prev) => [...prev, instrument]);
-                    injectInstrumentSampler(webviewRef, instrument, instrumentUris);
-                }
+                setInjectedInstruments((prev) => [...prev, instrument]);
+                injectInstrumentSampler(webviewRef, instrument, globals.instrumentUris);
             }
         }
-    }, [instrumentUrisSet, webviewLoaded]);
+    }, [webviewLoaded]);
 
     const prepareForWebViewLoad = () => {
         setWebviewLoaded(false);
@@ -97,10 +84,10 @@ export const Exercise = () => {
     const handleAnswer = async (answer: string) => {
         // Debugging
         // alert(`inTune: ${exerciseState.inTune}, Correct Answer: ${exercise.getCorrectAnswer(exerciseState.inTune)}, Your Answer: ${answer}`);
-        await updateExercise(id, { completed: database.exercises[id].completed + 1 }, dispatch);
+        await updateExercise(id, { completed: globals.db.exercises[id].completed + 1 }, dispatch);
         if (answer === (exerciseState.inTune ? "In Tune" : "Out of Tune")
         || answer === exerciseState.tuningSystem) {
-            await updateExercise(id, { correct: database.exercises[id].correct + 1 }, dispatch);
+            await updateExercise(id, { correct: globals.db.exercises[id].correct + 1 }, dispatch);
         }
 
         // Set up next exercise
@@ -119,16 +106,14 @@ export const Exercise = () => {
         <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
             <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
-            <Text>Correct: {database.exercises[id].correct}/{database.exercises[id].completed}</Text>
+            <Text>Correct: {globals.db.exercises[id].correct}/{globals.db.exercises[id].completed}</Text>
             {
-                instrumentUrisSet
-                ? <ExercisePlayer
+                <ExercisePlayer
                     ref={webviewRef}
                     soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments, exerciseState.staggered)}
                     onLoadStart={prepareForWebViewLoad}
                     onLoadEnd={handleWebViewLoad} // Call injectInstruments when WebView is loaded
                 />
-                : <Text>Loading instruments...</Text>
             }
             <Button
                 title="toggle debug"
@@ -151,7 +136,7 @@ export const Exercise = () => {
                 ))}
             </View>
             <View>
-                {database.exercises[id].completed > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
+                {globals.db.exercises[id].completed > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
             {exerciseState.showSheetMusic && <SheetMusicPreview
                 // TODO: make this toggleable in exercise settings
@@ -186,9 +171,9 @@ export const Exercise = () => {
                                 setExerciseState((prev) => ({ ...prev, activeInstruments: typedInstruments }));
                                 for (const instrument of typedInstruments) {
                                     // Eliminate redundant injections while changing settings
-                                    if (instrumentUris && !injectedInstruments.includes(instrument)) {
+                                    if (!injectedInstruments.includes(instrument)) {
                                         setInjectedInstruments((prev) => [...prev, instrument]);
-                                        injectInstrumentSampler(webviewRef, instrument, instrumentUris);
+                                        injectInstrumentSampler(webviewRef, instrument, globals.instrumentUris);
                                     }
                                 }
                             }}

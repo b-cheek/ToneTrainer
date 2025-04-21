@@ -4,23 +4,23 @@ import ExerciseList from '@/components/ExerciseList';
 import { Categories } from '@/constants/Exercises';
 import { Stack } from 'expo-router';
 import { globalStyles } from '@/constants/Styles';
-import { DatabaseContext } from '@/components/DatabaseProvider';
+import { GlobalsContext } from '@/components/GlobalsProvider';
 
 export default function Index() {
-  const database = useContext(DatabaseContext);
+  const globals = useContext(GlobalsContext);
 
   return (
     <View style={styles.parent}>
       <Stack.Screen options={{ title: "Exercises" }}/>
       {
-        "sentinel" in database.exercises
-        ? <Text>Loading database...</Text>
-        : <ScrollView contentContainerStyle={styles.exerciseContainer}>
+        globals.loaded
+        ? <ScrollView contentContainerStyle={styles.exerciseContainer}>
             {Object.entries(Categories).map(([category, exercises]) => (
               <ExerciseList key={category} name={category} exercises={exercises} />
             ))}
             <View style={styles.bottomMargin} />
           </ScrollView>
+        : <Text>Loading...</Text>
       }
     </View>
   );

@@ -1,10 +1,10 @@
 import { Stack } from "expo-router";
-import DatabaseProvider from "@/components/DatabaseProvider";
+import GlobalsProvider from "@/components/GlobalsProvider";
 
 export default function RootLayout() {
   return (
-    <DatabaseProvider>
+    <GlobalsProvider>
       <Stack screenOptions={{ title: "", headerTitleAlign: "center" }} />
-    </DatabaseProvider>
+    </GlobalsProvider>
   );
 }

@@ -4,7 +4,7 @@ import ExerciseList from "../ExerciseList";
 import { Categories } from '@/constants/Exercises';
 import { getRndInt } from '@/utils/Math';
 
-jest.mock("@/utils/Database");
+jest.mock("../GlobalsProvider");
 
 test("Exercise names render in list", async () => {
     const categories = Object.entries(Categories);
