@@ -1,3 +1,5 @@
+export const development = false; // set to true for development
+
 export const tuningSystems = [
     "Equal Temperament",
     "Just Intonation",

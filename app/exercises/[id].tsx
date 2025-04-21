@@ -11,7 +11,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SheetMusicPreview from '@/components/SheetMusicPreview';
-import { midiToAbc, tuningSystems } from '@/constants/Values';
+import { development, midiToAbc, tuningSystems } from '@/constants/Values';
 
 export const Exercise = () => {
 
@@ -123,7 +123,7 @@ export const Exercise = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
+        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20, paddingTop: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
             <FontAwesome.Button name="gear" size={24} color="black" iconStyle={globalStyles.icon} onPress={() => setShowSettings(!showSettings)}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
@@ -137,13 +137,13 @@ export const Exercise = () => {
                 />
                 : <Text>Loading instruments...</Text>
             }
-            <Button
+            {development && <Button
                 title="toggle debug"
                 onPress={() => {
                     // Toggle debug mode
                     setDebug(!debug);
                 }}
-            />
+            />}
             { debug && (
             <View>
                 <Text>Debug</Text>

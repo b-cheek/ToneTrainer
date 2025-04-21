@@ -1,5 +1,4 @@
 import { WebView } from "react-native-webview";
-import Constants from "expo-constants";
 import { StyleSheet } from "react-native";
 
 const SheetMusicPreview = (props: {abcString: string, scale: number}) => {
@@ -34,8 +33,8 @@ const SheetMusicPreview = (props: {abcString: string, scale: number}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: Constants.statusBarHeight,
     backgroundColor: "#fff",
+    marginTop: 15,
     borderColor: "black",
     borderWidth: 1,
     minHeight: 420,
