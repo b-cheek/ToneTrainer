@@ -125,7 +125,7 @@ export const Exercise = () => {
     return (
         <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
-            <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
+            <FontAwesome.Button name="gear" size={24} color="black" iconStyle={globalStyles.icon} onPress={() => setShowSettings(!showSettings)}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
             {
                 instrumentUrisSet
@@ -180,6 +180,7 @@ export const Exercise = () => {
                             name="close" 
                             size={24} 
                             color="black" 
+                            iconStyle={globalStyles.icon}
                             onPress={() => setShowSettings(false)} 
                         />
                         <ExerciseSettings

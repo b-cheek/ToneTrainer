@@ -24,5 +24,8 @@ export const globalStyles = StyleSheet.create({
     row: {
         display: 'flex',
         flexDirection: 'row'
+    },
+    icon: {
+        marginRight: 0
     }
 });

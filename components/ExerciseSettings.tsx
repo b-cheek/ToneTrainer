@@ -6,6 +6,7 @@ import { Instruments } from '@/constants/Instruments';
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
+import { globalStyles } from '@/constants/Styles';
 
 const ExerciseSettings = ({
   activeInstruments,
@@ -50,6 +51,7 @@ const ExerciseSettings = ({
                 name="trash-o"
                 size={24}
                 color="black"
+                iconStyle={globalStyles.icon}
                 onPress={() => {
                   // TODO: this deletes all insturments of same type, not just the one
                   const newInstruments = activeInstruments.filter((i) => i !== item);
