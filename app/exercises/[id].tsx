@@ -10,7 +10,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SheetMusicPreview from '@/components/SheetMusicPreview';
-import { midiToAbc, tuningSystems } from '@/constants/Values';
+import { development, midiToAbc, tuningSystems } from '@/constants/Values';
 import { updateExercise, GlobalsContext, GlobalsDispatchContext } from '@/components/GlobalsProvider';
 
 export const Exercise = () => {
@@ -103,9 +103,9 @@ export const Exercise = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
+        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20, paddingTop: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
-            <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
+            <FontAwesome.Button name="gear" size={24} color="black" iconStyle={globalStyles.icon} onPress={() => setShowSettings(!showSettings)}/>
             <Text>Correct: {globals.db.exercises[id].correct}/{globals.db.exercises[id].completed}</Text>
             {
                 <ExercisePlayer
@@ -115,13 +115,13 @@ export const Exercise = () => {
                     onLoadEnd={handleWebViewLoad} // Call injectInstruments when WebView is loaded
                 />
             }
-            <Button
+            {development && <Button
                 title="toggle debug"
                 onPress={() => {
                     // Toggle debug mode
                     setDebug(!debug);
                 }}
-            />
+            />}
             { debug && (
             <View>
                 <Text>Debug</Text>
@@ -158,6 +158,7 @@ export const Exercise = () => {
                             name="close" 
                             size={24} 
                             color="black" 
+                            iconStyle={globalStyles.icon}
                             onPress={() => setShowSettings(false)} 
                         />
                         <ExerciseSettings

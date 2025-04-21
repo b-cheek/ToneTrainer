@@ -1,3 +1,5 @@
+export const development = false; // set to true for development
+
 export const tuningSystems = [
     "Equal Temperament",
     "Just Intonation",
@@ -95,6 +97,13 @@ export const degreeLabels = [ // Used for feedback string
     "Root", "Minor 2nd", "Major 2nd", "Minor 3rd", "Major 3rd", "4th", "Diminished 5th", "5th", "Augmented 5th", "Major 6th", "Minor 7th", "Major 7th",
     "Octave", "b9", "9", "#9", "Major 3rd", "4th", "#11", "5th", "b13"
 ]
+
+export const sliderDisplayNames = {
+    outOfTune: "Cents Out of Tune",
+    size: "Size (Bottom to Top Note)",
+    range: "Range (Overall Pitch Range)",
+    complexity: "Notes in Chord"
+}
 
 // May use this instead for all chords because of how tuning deviates from just intonation intervals
 
