@@ -6,12 +6,12 @@ import ExerciseSettings from '@/components/ExerciseSettings';
 import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
 import { createInstrumentUris, injectInstrumentSampler } from '@/utils/InstrumentSampler';
-import Storage from 'expo-sqlite/kv-store';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SheetMusicPreview from '@/components/SheetMusicPreview';
 import { midiToAbc, tuningSystems } from '@/constants/Values';
+import { getExercise, updateExercise } from '@/utils/Database';
 
 export const Exercise = () => {
 
@@ -19,11 +19,10 @@ export const Exercise = () => {
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises[id];
-    const serialized = Storage.getItemSync(id);
-    if (exercise === undefined || serialized === null) {
+    const initialData = getExercise(id);
+    if (exercise === undefined || initialData === null) {
         return <Text>Exercise not found</Text>;
     }
-    const initialData: ExerciseData = JSON.parse(serialized);
 
     // non-exercise related state
     const [exerciseNum, setExerciseNum] = useState(initialData.completed);
@@ -100,12 +99,12 @@ export const Exercise = () => {
         // alert(`inTune: ${exerciseState.inTune}, Correct Answer: ${exercise.getCorrectAnswer(exerciseState.inTune)}, Your Answer: ${answer}`);
         const newCompleted = exerciseNum + 1;
         setExerciseNum(newCompleted);
-        await Storage.mergeItem(id, JSON.stringify({ completed: newCompleted }));
+        await updateExercise(id, { completed: newCompleted });
         if (answer === (exerciseState.inTune ? "In Tune" : "Out of Tune")
         || answer === exerciseState.tuningSystem) {
             const newCorrect = correctNum + 1;
             setCorrectNum(newCorrect);
-            await Storage.mergeItem(id, JSON.stringify({ correct: newCorrect }));
+            await updateExercise(id, { correct: newCorrect });
         }
 
         // Set up next exercise
