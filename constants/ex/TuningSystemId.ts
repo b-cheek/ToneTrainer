@@ -1,7 +1,8 @@
 import { Exercise } from "../Exercise"
 import { justIntonationAdjustments, harmonicJustAdjustments, pythagoreanAdjustments, quarterCommaMeantoneAdjustments, werckmeisterIIIAdjustments } from "../Values"
 import { chords, tuningSystems } from "../Values"
-import { ExerciseCategories, ExerciseDifficulties, getRndInt, modulo } from "../Exercise"
+import { ExerciseCategories, ExerciseDifficulties } from "../Exercise"
+import { getRndInt, modulo } from '@/utils/Math'
 
 export const TuningSystemId: Exercise = {
     title: "Tuning System Identification",
