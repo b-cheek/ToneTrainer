@@ -45,7 +45,7 @@ const ExerciseSettings = ({
                 onPress={() => {
                   // TODO: this deletes all insturments of same type, not just the one
                   const newInstruments = activeInstruments.filter((i) => i !== item);
-                  onInstrumentsChange(newInstruments);
+                  onInstrumentsChange(newInstruments.length == 0 ? activeInstruments : newInstruments);
                 }}
               />
             </TouchableOpacity>
