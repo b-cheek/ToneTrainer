@@ -98,6 +98,13 @@ export const degreeLabels = [ // Used for feedback string
     "Octave", "b9", "9", "#9", "Major 3rd", "4th", "#11", "5th", "b13"
 ]
 
+export const sliderDisplayNames = {
+    outOfTune: "Cents Out of Tune",
+    size: "Size (Bottom to Top Note)",
+    range: "Range (Overall Pitch Range)",
+    complexity: "Notes in Chord"
+}
+
 // May use this instead for all chords because of how tuning deviates from just intonation intervals
 
 export const chords = [
