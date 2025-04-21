@@ -1,8 +1,10 @@
-import { useEffect } from 'react';
 import { Stack } from "expo-router";
-import { loadDatabase } from '@/utils/Database';
+import DatabaseProvider from "@/components/DatabaseProvider";
 
 export default function RootLayout() {
-  useEffect(() => loadDatabase(), []);
-  return <Stack screenOptions={{ title: "", headerTitleAlign: "center" }} />;
+  return (
+    <DatabaseProvider>
+      <Stack screenOptions={{ title: "", headerTitleAlign: "center" }} />
+    </DatabaseProvider>
+  );
 }

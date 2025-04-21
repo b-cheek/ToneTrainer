@@ -1,53 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useContext } from 'react';
 import { Text, View, StyleSheet, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { globalStyles } from '@/constants/Styles';
-import { ExerciseData, ExerciseDifficulties } from '@/constants/Exercises';
+import { ExerciseDifficulties } from '@/constants/Exercises';
 import DifficultyText from '@/components/DifficultyText';
-import { loadDatabase, getExercises } from '@/utils/Database';
+import { DatabaseContext } from '@/components/DatabaseProvider';
 import { useIsFocused } from '@react-navigation/native';
 
-const ExerciseList = (props: { name: string, exercises: { id: string, title: string, difficulty: ExerciseDifficulties }[] }) => {
-  const [data, setData] = useState<Record<string, ExerciseData>>({});
-  const [dataSet, setDataSet] = useState<boolean>(false);
-  const [dataNull, setDataNull] = useState<boolean>(false);
-  const isFocused = useIsFocused();
-
-  useEffect(() => {
-    if (isFocused) {
-      const exercises = getExercises();
-      if (exercises === null) {
-        setDataNull(true);
-        loadDatabase();
-        setDataNull(false);
-      } else {
-        setData(exercises);
-        setDataSet(true);
-      }
-    }
-  }, [isFocused]);
+const ExerciseList = (props: {
+  name: string,
+  exercises: { id: string, title: string, difficulty: ExerciseDifficulties }[]
+}) => {
+  const database = useContext(DatabaseContext);
+  // Something refuses to re-render this component when the context changes even when the dispatch obviously goes through.
+  // Merely including this focus hook is enough to force a re-render upon navigating back to the homepage.
+  const _ = useIsFocused();
 
   return (
     <View style={styles.parent}>
-      {
-        dataNull
-        ? <Text>Exercise not found</Text>
-        : <View>
-            <Text style={globalStyles.text1}>{props.name}</Text>
-            {props.exercises.map(item => (
-              <Pressable onPress={() => router.push({
-                pathname: '/exercises/[id]',
-                params: { id : item.id }
-              })} key={item.id} style={styles.exercise}>
-                <Text>{item.title}</Text>
-                <View style={styles.difficultyAndCompletion}>
-                  <DifficultyText difficulty={item.difficulty}/>
-                  <Text>{dataSet ? data[item.id].correct : "-"}/{dataSet ? data[item.id].completed : "-"} correct</Text>
-                </View>
-              </Pressable>
-            ))}
+      <Text style={globalStyles.text1}>{props.name}</Text>
+      {props.exercises.map(item => (
+        <Pressable onPress={() => {
+          router.push({
+            pathname: '/exercises/[id]',
+            params: { id : item.id }
+          });
+        }} key={item.id} style={styles.exercise}>
+          <Text>{item.title}</Text>
+          <View style={styles.difficultyAndCompletion}>
+            <DifficultyText difficulty={item.difficulty}/>
+            <Text>{database.exercises[item.id].correct}/{database.exercises[item.id].completed} correct</Text>
           </View>
-      }
+        </Pressable>
+      ))}
     </View>
   );
 }

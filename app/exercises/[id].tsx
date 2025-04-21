@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import { Text, Button, StyleSheet, View, ScrollView, Modal } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
 import ExercisePlayer from '@/components/ExercisePlayer';
 import ExerciseSettings from '@/components/ExerciseSettings';
-import { soundScript, Exercises, ExerciseData } from '@/constants/Exercises';
+import { soundScript, Exercises } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
 import { createInstrumentUris, injectInstrumentSampler } from '@/utils/InstrumentSampler';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -11,22 +11,20 @@ import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SheetMusicPreview from '@/components/SheetMusicPreview';
 import { midiToAbc, tuningSystems } from '@/constants/Values';
-import { getExercise, updateExercise } from '@/utils/Database';
+import { updateExercise, DatabaseContext, DatabaseDispatchContext } from '@/components/DatabaseProvider';
 
 export const Exercise = () => {
-
     // Routing and initialization
     const params = useLocalSearchParams();
     const { id } = params as { id: string };
     const exercise = Exercises[id];
-    const initialData = getExercise(id);
-    if (exercise === undefined || initialData === null) {
+    const database = useContext(DatabaseContext);
+    const dispatch = useContext(DatabaseDispatchContext);
+    if (exercise === undefined) {
         return <Text>Exercise not found</Text>;
     }
 
     // non-exercise related state
-    const [exerciseNum, setExerciseNum] = useState(initialData.completed);
-    const [correctNum, setCorrectNum] = useState(initialData.correct);
     const [debug, setDebug] = useState(false); // Debug mode to show additional information
     const [showSettings, setShowSettings] = useState(false);
     const [sliderValues, setSliderValues] = useState<Record<string, number>>({}); 
@@ -97,14 +95,10 @@ export const Exercise = () => {
     const handleAnswer = async (answer: string) => {
         // Debugging
         // alert(`inTune: ${exerciseState.inTune}, Correct Answer: ${exercise.getCorrectAnswer(exerciseState.inTune)}, Your Answer: ${answer}`);
-        const newCompleted = exerciseNum + 1;
-        setExerciseNum(newCompleted);
-        await updateExercise(id, { completed: newCompleted });
+        await updateExercise(id, { completed: database.exercises[id].completed + 1 }, dispatch);
         if (answer === (exerciseState.inTune ? "In Tune" : "Out of Tune")
         || answer === exerciseState.tuningSystem) {
-            const newCorrect = correctNum + 1;
-            setCorrectNum(newCorrect);
-            await updateExercise(id, { correct: newCorrect });
+            await updateExercise(id, { correct: database.exercises[id].correct + 1 }, dispatch);
         }
 
         // Set up next exercise
@@ -123,7 +117,7 @@ export const Exercise = () => {
         <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
             <Stack.Screen options={{ title: exercise.title }}/>
             <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
-            <Text>Correct: {correctNum}/{exerciseNum}</Text>
+            <Text>Correct: {database.exercises[id].correct}/{database.exercises[id].completed}</Text>
             {
                 instrumentUrisSet
                 ? <ExercisePlayer
@@ -155,7 +149,7 @@ export const Exercise = () => {
                 ))}
             </View>
             <View>
-                {exerciseNum > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
+                {database.exercises[id].completed > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
             <SheetMusicPreview
                 // TODO: make this toggleable in exercise settings
