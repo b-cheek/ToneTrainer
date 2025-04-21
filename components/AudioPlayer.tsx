@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import { WebView } from 'react-native-webview';
 
-const AudioPlayer = forwardRef<WebView, { soundScript: string, onLoadEnd: () => void }>((props, ref) => {
+const AudioPlayer = forwardRef<WebView, { soundScript: string, onLoadStart: () => void, onLoadEnd: () => void }>((props, ref) => {
     const soundScript = props.soundScript;
 
     return (
@@ -22,6 +22,7 @@ const AudioPlayer = forwardRef<WebView, { soundScript: string, onLoadEnd: () => 
                 };
                 true;
             `}
+            onLoadStart={props.onLoadStart}
             onLoadEnd={props.onLoadEnd} // Call the onLoadEnd prop when the WebView finishes loading to load initial instrument sounds
             onMessage={(event) => { // An onMessage event is required as well to inject the JavaScript code into the WebView.
                 alert(event.nativeEvent.data);

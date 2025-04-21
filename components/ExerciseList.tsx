@@ -22,11 +22,6 @@ const ExerciseList = (props: { name: string, exercises: { id: string, title: str
         setDataSet(true);
       })();
     }
-
-    return () => {
-      setDataSet(false);
-      setData({});
-    }
   }, [isFocused]);
 
   return (

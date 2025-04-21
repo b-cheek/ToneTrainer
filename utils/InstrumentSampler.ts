@@ -58,14 +58,6 @@ export const injectInstrumentSampler = (
 
   console.log(`Injecting instrument sampler for: ${instrument}`);
 
-  if (instrument === "synthesizer") {
-    webview.current.injectJavaScript(`
-      synthesizer = new Tone.Synth().toDestination();
-      true;
-    `);
-    return;
-  }
-
   if (!instrumentUris[instrument]) {
     console.warn(`No audio URIs found for instrument: ${instrument}`);
     return;

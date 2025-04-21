@@ -33,8 +33,10 @@ yarn-error.*
 
 # local env files
 .env*.local
+.vscode
 
 # typescript
 *.tsbuildinfo
 
 app-example
+coverage

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TouchableOpacity, Switch } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Picker } from '@react-native-picker/picker';
-import { instrumentDisplayNames } from '@/constants/Values';
+import { Instruments } from '@/constants/Instruments';
 import DraggableFlatList from 'react-native-draggable-flatlist'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
@@ -19,7 +19,7 @@ const ExerciseSettings = ({
   onStaggeredChange,
   onShowSheetMusicChange
 }: {
-  activeInstruments: ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[];
+  activeInstruments: string[];
   difficultyRanges: Record<string, [number, number]>;
   sliderValues: Record<string, number>;
   staggered: boolean;
@@ -30,7 +30,7 @@ const ExerciseSettings = ({
   onStaggeredChange: (value: boolean) => void;
   onShowSheetMusicChange: (value: boolean) => void;
 }) => {
-  const [pickerValue, setPickerValue] = useState<keyof typeof instrumentDisplayNames>('piano'); // Default to piano
+  const [pickerValue, setPickerValue] = useState<string>("piano"); // Default to piano
   return (
     <View>
       <Text>Instrument</Text>
@@ -39,13 +39,13 @@ const ExerciseSettings = ({
           // TODO: limit number of active instruments appropriately per the exercise
           // inverted={true} // For some reason, this cause all the text and buttons to be upside down
           data={activeInstruments.toReversed()}
-          renderItem={({ item, drag, isActive }: { item: keyof typeof instrumentDisplayNames; drag: () => void; isActive: boolean }) => (
+          renderItem={({ item, drag, isActive }: { item: string; drag: () => void; isActive: boolean }) => (
             <TouchableOpacity
               onLongPress={drag}
               disabled={isActive}
               style={{ padding: 10, backgroundColor: isActive ? 'lightgray' : 'white', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
             >
-              <Text>{instrumentDisplayNames[item]}</Text>
+              <Text>{Instruments[item].display_name}</Text>
               <FontAwesome.Button
                 name="trash-o"
                 size={24}
@@ -53,7 +53,7 @@ const ExerciseSettings = ({
                 onPress={() => {
                   // TODO: this deletes all insturments of same type, not just the one
                   const newInstruments = activeInstruments.filter((i) => i !== item);
-                  onInstrumentsChange(newInstruments);
+                  onInstrumentsChange(newInstruments.length == 0 ? activeInstruments : newInstruments);
                 }}
               />
             </TouchableOpacity>
@@ -68,15 +68,15 @@ const ExerciseSettings = ({
         selectedValue={pickerValue}
         onValueChange={(itemValue) => {
           // Note that duplicate instruments are allowed
-          setPickerValue(itemValue as keyof typeof instrumentDisplayNames);
+          setPickerValue(itemValue);
           onInstrumentsChange([...activeInstruments, itemValue]);
         }}
       >
-        {Object.keys(instrumentDisplayNames).map((internal) => (
+        {Object.entries(Instruments).map(([id, instrument]) => (
           <Picker.Item
-            key={internal}
-            label={instrumentDisplayNames[internal as keyof typeof instrumentDisplayNames]}
-            value={internal}
+            key={id}
+            label={instrument.display_name}
+            value={id}
             color="black"
           />
         ))}
