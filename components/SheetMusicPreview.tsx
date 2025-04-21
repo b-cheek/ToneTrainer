@@ -2,7 +2,7 @@ import { WebView } from "react-native-webview";
 import Constants from "expo-constants";
 import { StyleSheet } from "react-native";
 
-const SheetMusicPreview = (props: {abcString: string}) => {
+const SheetMusicPreview = (props: {abcString: string, scale: number}) => {
   return (
     <WebView
       style={styles.container}
@@ -23,7 +23,7 @@ const SheetMusicPreview = (props: {abcString: string}) => {
         <script>
             const ABCJS = window.ABCJS;
             // const abcString = "X:1\\nK:D\\nDD AA|BBA2|\\n"
-            const visualObj = ABCJS.renderAbc("abcjs-container", "${props.abcString}", { scale: 8 });
+            const visualObj = ABCJS.renderAbc("abcjs-container", "${props.abcString}", { scale: ${props.scale} });
         </script>
       `,
       }}

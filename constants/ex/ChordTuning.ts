@@ -39,7 +39,7 @@ export const ChordTuning: Exercise = {
             ? 0 
             : getRndInt(outOfTuneDifficulty, 49 - Math.max(...justIntonationAdjustments)) * getRndSign();
 
-        const detuneNote = (inTune) ? -1 : getRndInt(0, complexityDifficulty - 1);
+        const detuneNote = (inTune) ? -1 : getRndInt(0, chord.shape.length); // Since shape is the intervals not notes the off by one is accounted for
 
         if (!inTune) notes[detuneNote].detune += centsOutOfTune;
 

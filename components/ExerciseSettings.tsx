@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Switch } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { Picker } from '@react-native-picker/picker';
 import { Instruments } from '@/constants/Instruments';
@@ -11,16 +11,24 @@ const ExerciseSettings = ({
   activeInstruments,
   difficultyRanges,
   sliderValues,
+  staggered,
+  showSheetMusic,
   onInstrumentsChange,
   onDifficultyChange,
-  onSliderChange
+  onSliderChange,
+  onStaggeredChange,
+  onShowSheetMusicChange
 }: {
   activeInstruments: string[];
   difficultyRanges: Record<string, [number, number]>;
   sliderValues: Record<string, number>;
+  staggered: boolean;
+  showSheetMusic: boolean;
   onInstrumentsChange: (instruments: string[]) => void;
   onDifficultyChange: (key: string, value: number) => void;
   onSliderChange: (key: string, value: number) => void;
+  onStaggeredChange: (value: boolean) => void;
+  onShowSheetMusicChange: (value: boolean) => void;
 }) => {
   const [pickerValue, setPickerValue] = useState<string>("piano"); // Default to piano
   return (
@@ -97,6 +105,16 @@ const ExerciseSettings = ({
           </View>
         );
       })}
+      <Text>Staggered</Text>
+      <Switch
+        onValueChange={onStaggeredChange}
+        value={staggered}
+      />
+      <Text>Show sheet music</Text>
+      <Switch
+        onValueChange={onShowSheetMusicChange}
+        value={showSheetMusic}
+      />
     </View>
   );
 };

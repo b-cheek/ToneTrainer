@@ -46,6 +46,8 @@ export const Exercise = () => {
             sliderDifficulties: sliderDifficulties,
             inTune: inTune,
             tuningSystem: tuningSystem,
+            staggered: false,
+            showSheetMusic: true,
             audioDetails: exercise.generateNotes(inTune, tuningSystem, sliderDifficulties),
             prevExerciseString: "",
         }
@@ -87,10 +89,10 @@ export const Exercise = () => {
         setWebviewLoaded(true);
     };
 
-    const generateAbcString = (notes: { midi: number, detune?: number }[]) => {
-        return `X: 1\\nL:1/4\\n[${notes.map(note => midiToAbc[note.midi]).join("")}]`;
-        // return "X:1\\nK:D\\nDD AA|BBA2|\\n";
-    }
+    const generateAbcString = (notes: { midi: number, detune?: number }[]) =>
+        (exerciseState.staggered)
+            ? `X: 1\\nL:1/4\\n${notes.map(note => midiToAbc[note.midi]).join("")}`
+            : `X: 1\\nL:1/4\\n[${notes.map(note => midiToAbc[note.midi]).join("")}]`;
 
     const handleAnswer = async (answer: string) => {
         // Debugging
@@ -122,7 +124,7 @@ export const Exercise = () => {
                 instrumentUrisSet
                 ? <ExercisePlayer
                     ref={webviewRef}
-                    soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}
+                    soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments, exerciseState.staggered)}
                     onLoadStart={prepareForWebViewLoad}
                     onLoadEnd={handleWebViewLoad} // Call injectInstruments when WebView is loaded
                 />
@@ -139,7 +141,7 @@ export const Exercise = () => {
             <View>
                 <Text>Debug</Text>
                 <Text>Exercise state: {JSON.stringify(exerciseState)}</Text>
-                <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}</Text>
+                <Text>Sound Script: {soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments, exerciseState.staggered)}</Text>
                 <Text>ABC String: {generateAbcString(exerciseState.audioDetails.notes)} </Text>
             </View>
             )}
@@ -151,10 +153,14 @@ export const Exercise = () => {
             <View>
                 {database.exercises[id].completed > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
             </View>
-            <SheetMusicPreview
+            {exerciseState.showSheetMusic && <SheetMusicPreview
                 // TODO: make this toggleable in exercise settings
                 abcString={generateAbcString(exerciseState.audioDetails.notes)}
-            />
+                scale={(exerciseState.staggered)
+                    ? -0.5 * exerciseState.sliderDifficulties.complexity + 8 || 8
+                    : 8
+                }
+            />}
             <Modal
                 animationType="slide"
                 visible={showSettings}
@@ -173,9 +179,12 @@ export const Exercise = () => {
                             activeInstruments={exerciseState.activeInstruments}
                             difficultyRanges={exercise.difficultyRanges}
                             sliderValues={sliderValues}
-                            onInstrumentsChange={(instruments) => {
-                                setExerciseState((prev) => ({ ...prev, activeInstruments: instruments as typeof prev.activeInstruments }));
-                                for (const instrument of instruments) {
+                            staggered={exerciseState.staggered}
+                            showSheetMusic={exerciseState.showSheetMusic}
+                            onInstrumentsChange={(instruments: string[]) => {
+                                const typedInstruments = instruments as ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[];
+                                setExerciseState((prev) => ({ ...prev, activeInstruments: typedInstruments }));
+                                for (const instrument of typedInstruments) {
                                     // Eliminate redundant injections while changing settings
                                     if (instrumentUris && !injectedInstruments.includes(instrument)) {
                                         setInjectedInstruments((prev) => [...prev, instrument]);
@@ -183,7 +192,7 @@ export const Exercise = () => {
                                     }
                                 }
                             }}
-                            onDifficultyChange={(key, value) =>
+                            onDifficultyChange={(key: string, value: number) =>
                                 setExerciseState((prev) => ({
                                 ...prev,
                                 sliderDifficulties: {
@@ -192,7 +201,9 @@ export const Exercise = () => {
                                 },
                                 }))
                             }
-                            onSliderChange={(key, value) => setSliderValues((prev) => ({ ...prev, [key]: value }))}
+                            onSliderChange={(key: string, value: number) => setSliderValues((prev) => ({ ...prev, [key]: value }))}
+                            onStaggeredChange={(staggered: boolean) => setExerciseState((prev) => ({ ...prev, staggered }))}
+                            onShowSheetMusicChange={(showSheetMusic: boolean) => setExerciseState((prev) => ({ ...prev, showSheetMusic }))}
                         />
                     </SafeAreaView>
                 </SafeAreaProvider>
