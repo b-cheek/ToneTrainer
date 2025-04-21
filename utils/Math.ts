@@ -1,5 +1,11 @@
+export const getRndNum = (min: number, max: number) => {
+    return Math.random() * (max - min) + min;
+}
+
 export const getRndInt = (min: number, max: number) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(getRndNum(min, max + 1));
 }
 
 export const getRndSign = () => {
