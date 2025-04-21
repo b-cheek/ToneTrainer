@@ -55,27 +55,39 @@ export const Exercise = () => {
     });
 
     const [instrumentUris, setInstrumentUris] = useState<Record<string, Record<string, string>> | null>(null);
+    const [instrumentUrisSet, setInstrumentUrisSet] = useState<boolean>(false);
+    const [webviewLoaded, setWebviewLoaded] = useState<boolean>(false);
     const webviewRef = useRef<WebView | null>(null);
 
     useEffect(() => {
         const loadAudio = async () => {
             const uris = await createInstrumentUris();
             setInstrumentUris(uris);
-            handleWebViewLoad();
+            setInstrumentUrisSet(true);
         };
         loadAudio();
     }, []);
 
-    const handleWebViewLoad = () => {
-        for (const instrument of exerciseState.activeInstruments) {
-            // Note that you have to re-inject the instrument sampler every time the WebView is loaded
-            // this could be more efficient by keeping the same webview loaded (TODO)
-            // but this is not a priority for now
-            if (instrumentUris) {
-                setInjectedInstruments((prev) => [...prev, instrument]);
-                injectInstrumentSampler(webviewRef, instrument, instrumentUris);
+    useEffect(() => {
+        if (instrumentUrisSet && webviewLoaded) {
+            for (const instrument of exerciseState.activeInstruments) {
+                // Note that you have to re-inject the instrument sampler every time the WebView is loaded
+                // this could be more efficient by keeping the same webview loaded (TODO)
+                // but this is not a priority for now
+                if (instrumentUris) {
+                    setInjectedInstruments((prev) => [...prev, instrument]);
+                    injectInstrumentSampler(webviewRef, instrument, instrumentUris);
+                }
             }
         }
+    }, [instrumentUrisSet, webviewLoaded]);
+
+    const prepareForWebViewLoad = () => {
+        setWebviewLoaded(false);
+    }
+
+    const handleWebViewLoad = () => {
+        setWebviewLoaded(true);
     };
 
     const generateAbcString = (notes: { midi: number, detune?: number }[]) => {
@@ -113,11 +125,16 @@ export const Exercise = () => {
             <Stack.Screen options={{ title: exercise.title }}/>
             <FontAwesome.Button name="gear" size={24} color="black" onPress={() => setShowSettings(!showSettings)}/>
             <Text>Correct: {correctNum}/{exerciseNum}</Text>
-            <ExercisePlayer 
-                ref={webviewRef}
-                soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}
-                onLoadEnd={handleWebViewLoad} // Call injectInstruments when WebView is loaded
-            />
+            {
+                instrumentUrisSet
+                ? <ExercisePlayer
+                    ref={webviewRef}
+                    soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments)}
+                    onLoadStart={prepareForWebViewLoad}
+                    onLoadEnd={handleWebViewLoad} // Call injectInstruments when WebView is loaded
+                />
+                : <Text>Loading instruments...</Text>
+            }
             <Button
                 title="toggle debug"
                 onPress={() => {
