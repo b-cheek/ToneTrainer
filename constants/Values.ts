@@ -100,8 +100,8 @@ export const degreeLabels = [ // Used for feedback string
 
 export const sliderDisplayNames = {
     outOfTune: "Cents Out of Tune",
-    size: "Size (Bottom to Top Note)",
-    range: "Range (Overall Pitch Range)",
+    size: "Size",
+    range: "Range",
     complexity: "Notes in Chord"
 }
 
