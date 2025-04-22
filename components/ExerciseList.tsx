@@ -28,7 +28,7 @@ const ExerciseList = (props: {
         }} key={item.id} style={styles.exercise}>
           <Text>{item.title}</Text>
           <View style={styles.difficultyAndCompletion}>
-            <DifficultyText difficulty={item.difficulty}/>
+            <DifficultyText difficulty={item.difficulty} />
             <Text>{globals.db.exercises[item.id].correct}/{globals.db.exercises[item.id].completed} correct</Text>
           </View>
         </Pressable>
