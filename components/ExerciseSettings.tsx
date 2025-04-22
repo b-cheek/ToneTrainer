@@ -142,7 +142,7 @@ const ExerciseSettings = ({
           return (
             <View key={key}>
               <View>
-                <Text>{sliderDisplayNames[key]}: {sliderCalc(difficultyRanges[key], sliderValues[key])} {development && `value=${sliderValues[key]}, inverted=${inverted.toString()}`}</Text>
+                <Text>{sliderDisplayNames[key]}: {sliderCalc(key, difficultyRanges[key], sliderValues[key])} {development && `value=${sliderValues[key]}, inverted=${inverted.toString()}`}</Text>
               </View>
               {development && <Text>difficultyRanges: {difficultyRanges[key]}</Text>}
               <Slider
