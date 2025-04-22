@@ -7,7 +7,7 @@ import DraggableFlatList from 'react-native-draggable-flatlist'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { FontAwesome } from '@expo/vector-icons';
 import { globalStyles } from '@/constants/Styles';
-import { development, sliderDisplayNames } from '@/constants/Values';
+import { development, sliderDisplayNames, intervalDistances } from '@/constants/Values';
 
 const ExerciseSettings = ({
   activeInstruments,
@@ -113,15 +113,29 @@ const ExerciseSettings = ({
           // TODO: set new exercise when difficulties are changed?
           // Calculate string that shows the slider value based on the range
           const sliderCalc = (
+            key: string,
             range: [number, number],
             sliderValue: number
           ): string => {
+              const inverted = difficultyRanges[key][0] > difficultyRanges[key][1];
               // Set slider value to range[0] if undefined
               if (sliderValue === undefined) sliderValue = (inverted) ? range[1] : range[0];
+              let formatNumber;
+              if (key == "range") {
+                formatNumber = (num: number) => ((num + 8)/6).toFixed(2);
+              }
+              else if (key == "size") {
+                formatNumber = (num: number) => intervalDistances[num] ? intervalDistances[num] : num;
+              }
+              else {
+                formatNumber = (num: number) => num
+              }
+
+                
               return (inverted)
-              ? (31 - sliderValue === range[0] ? `${range[0]}` : `${31 - sliderValue} - ${range[0]}`) // Inverted slider
+              ? (31 - sliderValue === range[0] ? `${formatNumber(range[0])}` : `${formatNumber(31 - sliderValue)} - ${formatNumber(range[0])}`) // Inverted slider
               // ? (range[1] === 31 - sliderValue ? `${range[1]}` : `${range[1]} - ${31 - sliderValue}`) // Inverted slider
-              : (range[0] === sliderValue ? `${range[0]}` : `${range[0]} - ${sliderValue}`); // Normal slider
+              : (range[0] === sliderValue ? `${formatNumber(range[0])}` : `${formatNumber(range[0])} - ${formatNumber(sliderValue)}`); // Normal slider
           }
           const inverted = difficultyRanges[key][0] > difficultyRanges[key][1];
           const [min, max] = (inverted) ? difficultyRanges[key].toReversed() : difficultyRanges[key];
