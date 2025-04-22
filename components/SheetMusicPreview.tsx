@@ -4,7 +4,8 @@ import { StyleSheet } from "react-native";
 const SheetMusicPreview = (props: {abcString: string, scale: number}) => {
   return (
     <WebView
-      style={styles.container}
+      style={styles.webview}
+      containerStyle={styles.container}
       originWhitelist={["*"]}
       injectedJavaScriptBeforeContentLoaded={`
         window.onerror = function(message, sourcefile, lineno, colno, error) {
@@ -26,17 +27,16 @@ const SheetMusicPreview = (props: {abcString: string, scale: number}) => {
         </script>
       `,
       }}
+      scrollEnabled={false}
     />
   );
 };
 
 const styles = StyleSheet.create({
+  webview: {
+    backgroundColor: "#0000",
+  },
   container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    marginTop: 15,
-    borderColor: "black",
-    borderWidth: 1,
     minHeight: 420,
     minWidth: 200,
   },
