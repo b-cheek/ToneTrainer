@@ -79,8 +79,8 @@ export const TuningSystemId: Exercise = {
             `Tuning System: ${tuningSystem}`;
     },
     difficultyRanges: {
-        range: [1, 10],
-        size: [1, 5],
-        complexity: [3, 7]
+        range: [0, 63],
+        size: [11, 35],
+        complexity: [3, 7], // Number of notes in chord
     },
 }
