@@ -27,5 +27,11 @@ export const globalStyles = StyleSheet.create({
     },
     icon: {
         marginRight: 0
+    },
+    maxHeight: {
+        height: '100%'
+    },
+    maxWidth: {
+        width: '100%'
     }
 });

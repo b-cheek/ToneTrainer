@@ -1,13 +1,10 @@
-import { useEffect, useRef, useState, useContext } from 'react';
-import { Text, Button, StyleSheet, View, ScrollView, Modal } from 'react-native';
+import { useState, useContext } from 'react';
+import { Text, Button, StyleSheet, View, ScrollView, Modal, Pressable } from 'react-native';
 import { useLocalSearchParams, Stack } from 'expo-router';
-import ExercisePlayer from '@/components/ExercisePlayer';
 import ExerciseSettings from '@/components/ExerciseSettings';
 import { soundScript, Exercises } from '@/constants/Exercises';
 import { globalStyles } from '@/constants/Styles';
-import { injectInstrumentSampler } from '@/utils/InstrumentSampler';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import WebView from 'react-native-webview';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SheetMusicPreview from '@/components/SheetMusicPreview';
 import { development, midiToAbc, tuningSystems } from '@/constants/Values';
@@ -28,7 +25,6 @@ export const Exercise = () => {
     const [debug, setDebug] = useState(false); // Debug mode to show additional information
     const [showSettings, setShowSettings] = useState(false);
     const [sliderValues, setSliderValues] = useState<Record<string, number>>({}); 
-    const [injectedInstruments, setInjectedInstruments] = useState<string[]>([]);
 
     // sliderValues is considered non-exercise related since it is purely visual
     // for the sliders to modify difficulty, not representative of the difficulty itself
@@ -52,29 +48,6 @@ export const Exercise = () => {
             prevExerciseString: "",
         }
     });
-
-    const [webviewLoaded, setWebviewLoaded] = useState<boolean>(false);
-    const webviewRef = useRef<WebView | null>(null);
-
-    useEffect(() => {
-        if (webviewLoaded) {
-            for (const instrument of exerciseState.activeInstruments) {
-                // Note that you have to re-inject the instrument sampler every time the WebView is loaded
-                // this could be more efficient by keeping the same webview loaded (TODO)
-                // but this is not a priority for now
-                setInjectedInstruments((prev) => [...prev, instrument]);
-                injectInstrumentSampler(webviewRef, instrument, globals.instrumentUris);
-            }
-        }
-    }, [webviewLoaded]);
-
-    const prepareForWebViewLoad = () => {
-        setWebviewLoaded(false);
-    }
-
-    const handleWebViewLoad = () => {
-        setWebviewLoaded(true);
-    };
 
     const generateAbcString = (notes: { midi: number, detune?: number }[]) =>
         (exerciseState.staggered)
@@ -103,18 +76,28 @@ export const Exercise = () => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20, paddingTop: 20}}>
-            <Stack.Screen options={{ title: exercise.title }}/>
-            <FontAwesome.Button name="gear" size={24} color="black" iconStyle={globalStyles.icon} onPress={() => setShowSettings(!showSettings)}/>
+        <ScrollView contentContainerStyle={{...globalStyles.container, paddingBottom: 20}}>
+            <Stack.Screen options={{
+                title: "Exercise",
+                headerRight: () => (
+                    <Pressable onPressOut={() => setShowSettings(!showSettings)} style={styles.icon}>
+                        <FontAwesome
+                            name="gear"
+                            size={24}
+                            color="black"
+                        />
+                    </Pressable>
+                )
+            }} />
+            <Text style={globalStyles.text0}>{exercise.title}</Text>
             <Text>Correct: {globals.db.exercises[id].correct}/{globals.db.exercises[id].completed}</Text>
-            {
-                <ExercisePlayer
-                    ref={webviewRef}
-                    soundScript={soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments, exerciseState.staggered)}
-                    onLoadStart={prepareForWebViewLoad}
-                    onLoadEnd={handleWebViewLoad} // Call injectInstruments when WebView is loaded
-                />
-            }
+            <View style={{ marginTop: 15 }}>
+                <Button title="Play" onPress={() => {
+                    globals.webviewRef.current!.injectJavaScript(
+                        soundScript(exerciseState.audioDetails.notes, exerciseState.activeInstruments, exerciseState.staggered)
+                    );
+                }} />
+            </View>
             {development && <Button
                 title="toggle debug"
                 onPress={() => {
@@ -135,9 +118,7 @@ export const Exercise = () => {
                     <Button key={index} title={choice} onPress={() => handleAnswer(choice)} />
                 ))}
             </View>
-            <View>
-                {globals.db.exercises[id].completed > 0 && <Text>{exerciseState.prevExerciseString}</Text>}
-            </View>
+            {globals.db.exercises[id].completed > 0 && <Text style={{ textAlign: 'center' }}>{exerciseState.prevExerciseString}</Text>}
             {exerciseState.showSheetMusic && <SheetMusicPreview
                 // TODO: make this toggleable in exercise settings
                 abcString={generateAbcString(exerciseState.audioDetails.notes)}
@@ -153,31 +134,21 @@ export const Exercise = () => {
                 onRequestClose={() => setShowSettings(false)}
             >
                 <SafeAreaProvider>
-                    <SafeAreaView style={styles.modalContent}>
-                        <FontAwesome.Button 
-                            name="close" 
-                            size={24} 
-                            color="black" 
-                            iconStyle={globalStyles.icon}
-                            onPress={() => setShowSettings(false)} 
-                        />
+                    <SafeAreaView style={styles.modal}>
+                        <Pressable onPress={() => setShowSettings(false)} style={styles.close}>
+                            <FontAwesome
+                                name="close"
+                                size={24}
+                                color="black"
+                            />
+                        </Pressable>
                         <ExerciseSettings
                             activeInstruments={exerciseState.activeInstruments}
                             difficultyRanges={exercise.difficultyRanges}
                             sliderValues={sliderValues}
                             staggered={exerciseState.staggered}
                             showSheetMusic={exerciseState.showSheetMusic}
-                            onInstrumentsChange={(instruments: string[]) => {
-                                const typedInstruments = instruments as ("bassoon" | "cello" | "clarinet" | "contrabass" | "flute" | "french_horn" | "piano" | "saxophone" | "synthesizer" | "trombone" | "trumpet" | "tuba" | "violin")[];
-                                setExerciseState((prev) => ({ ...prev, activeInstruments: typedInstruments }));
-                                for (const instrument of typedInstruments) {
-                                    // Eliminate redundant injections while changing settings
-                                    if (!injectedInstruments.includes(instrument)) {
-                                        setInjectedInstruments((prev) => [...prev, instrument]);
-                                        injectInstrumentSampler(webviewRef, instrument, globals.instrumentUris);
-                                    }
-                                }
-                            }}
+                            onInstrumentsChange={(instruments: string[]) => setExerciseState((prev) => ({ ...prev, activeInstruments: instruments }))}
                             onDifficultyChange={(key: string, value: number) =>
                                 setExerciseState((prev) => ({
                                 ...prev,
@@ -207,15 +178,24 @@ const styles = StyleSheet.create({
         padding: 10,
         borderWidth: 1,
         borderColor: 'black',
+        margin: 15
     },
 
-    modalContent: {
-        flex: 1,
+    modal: {
         backgroundColor: 'white',
-        alignItems: 'center',
-        justifyContent: 'center',
         padding: 20,
-    }
+        paddingTop: 0,
+        flex: 1
+    },
+    
+    icon: {
+        padding: 15
+    },
+
+    close: {
+        padding: 15,
+        marginLeft: "auto"
+    },
 });
 
 export default Exercise;

@@ -1,11 +1,21 @@
-import React, { createContext, useReducer, PropsWithChildren, useEffect } from 'react';
+import React, { createContext, useReducer, PropsWithChildren, useEffect, useRef, createRef } from 'react';
 import Storage from 'expo-sqlite/kv-store';
 import { useAssets } from "expo-asset";
 import * as FileSystem from "expo-file-system";
 import { ExerciseData, Exercises } from '@/constants/Exercises';
+import { WebView } from 'react-native-webview';
 
 export interface Database {
     exercises: Record<string, ExerciseData>
+}
+
+export type Globals = {
+    loaded: boolean,
+    db: Database,
+    instrumentUris: Record<string, Record<string, string>>,
+    webviewRef: React.RefObject<WebView>,
+    webviewLoaded: boolean,
+    sheetMusic: string
 }
 
 export const initialGlobals = {
@@ -13,18 +23,18 @@ export const initialGlobals = {
     db: {
         exercises: { }
     },
-    instrumentUris: { }
-}
-
-export type Globals = {
-    loaded: boolean,
-    db: Database,
-    instrumentUris: Record<string, Record<string, string>>
+    instrumentUris: { },
+    webviewRef: createRef<WebView>(),
+    webviewLoaded: false,
+    sheetMusic: ""
 }
 
 export type GlobalsAction = {
     type: "set",
-    context: Globals
+    globals: Globals
+} | {
+    type: "update",
+    globals: Partial<Globals>
 } | {
     type: "updateExercise",
     id: string,
@@ -37,7 +47,10 @@ export const GlobalsDispatchContext = createContext<React.Dispatch<GlobalsAction
 export const globalsReducer = (globals: Globals, action: GlobalsAction) => {
     switch (action.type) {
         case "set": {
-            return action.context;
+            return action.globals;
+        }
+        case "update": {
+            return {...globals, ...action.globals};
         }
         case "updateExercise": {
             const currentData = globals.db.exercises[action.id];
@@ -64,8 +77,10 @@ export const updateExercise = async (id: string, data: Partial<ExerciseData>, di
 }
 
 const GlobalsProvider = ({ children }: PropsWithChildren) => {
-    const [database, dispatch] = useReducer(globalsReducer, initialGlobals);
-    const [assets, error] = useAssets([
+    const [globals, dispatch] = useReducer(globalsReducer, initialGlobals);
+    const webviewRef = useRef(null);
+    // TODO: determine if there is a way to dynamically import these
+    const [samples, error] = useAssets([
         require("../assets/trimmedSamples/bassoon/A3.mp3"),
         require("../assets/trimmedSamples/cello/A3.mp3"),
         require("../assets/trimmedSamples/clarinet/D4.mp3"),
@@ -81,7 +96,7 @@ const GlobalsProvider = ({ children }: PropsWithChildren) => {
     ]);
 
     useEffect(() => {
-        if (assets !== undefined) {
+        if (samples !== undefined) {
             if (error !== undefined) {
                 console.error("Error loading audio assets:", error);
             }
@@ -100,16 +115,16 @@ const GlobalsProvider = ({ children }: PropsWithChildren) => {
 
                 // Load instrument URIs
                 const instrumentUris: Record<string, Record<string, string>> = {};
-                for (const asset of assets) {
+                for (const sample of samples) {
                     try {
-                        const uri = asset.uri;
+                        const uri = sample.uri;
                         const note = uri.split("%2F").pop()?.split(".")[0] ?? "unknown";
                         const instrument = uri.split("%2F")[uri.split("%2F").length - 2];
                 
-                        await asset.downloadAsync(); // Ensure the asset is downloaded
+                        await sample.downloadAsync(); // Ensure the asset is downloaded
                 
                         // Convert to Base64
-                        const base64 = await FileSystem.readAsStringAsync(asset.localUri!, {
+                        const base64 = await FileSystem.readAsStringAsync(sample.localUri!, {
                             encoding: FileSystem.EncodingType.Base64,
                         });
                 
@@ -122,20 +137,24 @@ const GlobalsProvider = ({ children }: PropsWithChildren) => {
                         console.error("Error loading audio asset:", error);
                     }
                 }
+
                 dispatch({
                     type: "set",
-                    context: {
+                    globals: {
                         loaded: true,
                         db: data as Database,
-                        instrumentUris: instrumentUris
+                        instrumentUris: instrumentUris,
+                        webviewRef: webviewRef,
+                        webviewLoaded: false,
+                        sheetMusic: ""
                     }
                 });
             });
         }
-    }, [assets]);
+    }, [samples]);
 
     return (
-        <GlobalsContext.Provider value={database}>
+        <GlobalsContext.Provider value={globals}>
             <GlobalsDispatchContext.Provider value={dispatch}>
                 { children }
             </GlobalsDispatchContext.Provider>
